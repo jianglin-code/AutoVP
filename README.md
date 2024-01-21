@@ -59,7 +59,7 @@ Video: https://github.com/jianglin-code/AutoVP/blob/main/autovp.mp4
 
 `source build/envsetup.sh`
 
-`lunch 4`
+`lunch rk3528_box-userdebug`
 
 `make -j4`
 
