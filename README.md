@@ -1,9 +1,5 @@
 # AutoVP
 
-This software is the outcome of our accademic research.
-
-If you use this code, please cite our accademic paper as:
-
 ```
 @inproceedings{AutoVP,
  author = {Lin Jiang, Feiyu Zhang, Jiang Ming},
@@ -62,7 +58,6 @@ Video: https://github.com/jianglin-code/AutoVP/blob/main/autovp.mp4
 `lunch rk3528_box-userdebug`
 
 `make -j4`
-
 
 ## Benchmarks and Samples
 
