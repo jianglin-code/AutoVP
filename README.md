@@ -47,7 +47,7 @@ Video: https://github.com/jianglin-code/AutoVP/blob/main/autovp.mp4
 
 ### basic code 
 
-- The Android source code is:  Rockchip rk3528 
+- The Android source codes: Rockchip rk3528 
 
 ## System Prerequisites
 
@@ -82,7 +82,7 @@ Video: https://github.com/jianglin-code/AutoVP/blob/main/autovp.mp4
 
 ### Samples  
 
-Those who need to reproduce the work can directly contact the author（pppaass@163.com）.
+Those who need to reproduce the work can directly contact the author.（pppaass@163.com）
 
 
 
