@@ -82,9 +82,7 @@ Video: https://github.com/jianglin-code/AutoVP/blob/main/autovp.mp4
 
 ### Samples  
 
-Those who need to reproduce can directly continue the author's work（pppaass@163.com）.
-
-
+Those who need to reproduce the work can directly contact the author（pppaass@163.com）.
 
 
 
