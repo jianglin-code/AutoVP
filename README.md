@@ -82,7 +82,7 @@ Video: https://github.com/jianglin-code/AutoVP/blob/main/autovp.mp4
 
 ### Samples  
 
-We have used nine families of malware to evaluate virtualization environment detection.
+Those who need to reproduce can directly continue the author's work（pppaass@163.com）.
 
 
 
