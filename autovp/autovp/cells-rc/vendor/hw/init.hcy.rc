@@ -1,0 +1,113 @@
+#import /cells/vendor/hw/init.root.rc
+#
+#on boot
+#    #add for leds
+#    chown system system /sys/class/leds/net-green/brightness
+#    chmod 0664 /sys/class/leds/net-green/brightness
+#    chown system system /sys/class/leds/net-red/brightness
+#    chmod 0664 /sys/class/leds/net-red/brightness
+#    chown system system /sys/class/leds/power-green/brightness
+#    chmod 0664 /sys/class/leds/power-green/brightness
+#    chown system system /sys/class/leds/power-red/brightness
+#    chmod 0664 /sys/class/leds/power-red/brightness
+#    chown system system /sys/class/resumeboot_class/resume_boot_opt
+#    chmod 0664 /sys/class/resumeboot_class/resume_boot_opt
+#
+#    #add for digital_dis
+#    chmod 0666 /dev/digital_dis
+#    chmod 0777 /mnt/media_rw
+#
+##on property:sys.boot_completed=1
+#on property:init.svc.bootanim=stopped
+#    start preinstall
+#    start xbmc_copy_folder
+#    setprop service.adb.tcp.port 5555
+##    restart adbd
+#
+##on property:service.bootanim.exit=1
+##    start preinstall
+##    start xbmc_copy_folder
+##    setprop service.adb.tcp.port 5555
+##    restart adbd
+#
+
+on property:sys.boot_completed=1
+    setprop service.adb.tcp.port 5555
+    start adbd
+
+#    start datadis 
+#    start stressWifiTest
+##    stop adbd
+##    setprop persist.vendor.userddrtest 1	
+#service preinstall /vendor/bin/preinstall.sh
+#    user root
+#    group root
+#    disabled
+#    oneshot
+#    seclabel u:r:preinstall:s0
+#
+#service xbmc_copy_folder /vendor/bin/xbmc_copy_folder.sh
+#    user root
+#    group root shell
+#    disabled
+#    oneshot
+#    seclabel u:r:xbmc_copy_folder:s0
+#    
+#service datadis /system/bin/datadis
+#    class main
+#    user root
+#    group root
+#    disabled
+#    oneshot
+#    #seclabel u:r:datadis:s0
+#
+#service mytest /system/bin/mytest
+#    class main
+#    user root
+#    group root
+#    disabled
+#    oneshot
+#service user_drmservice /system/bin/user_drmservice
+#    class main
+#    user root
+#    group root
+#    oneshot
+#service userfun /system/bin/userfun.sh
+#    class main
+#    user root
+#    group root
+#    disabled
+#    oneshot
+#service stress_ddr_test /system/bin/stress_ddr_test
+#    class main
+#    user root
+#    group root
+#    disabled
+#    oneshot
+#    
+#service stressWifiTest /system/bin/stress_wifi_test.sh
+#    class main
+#    user root
+#    group root
+#    disabled
+#    oneshot
+#
+#on property:persist.vendor.ethstate=2
+#    exec /system/bin/ifconfig eth0 up
+#
+#on property:persist.vendor.ethstate=3
+#    exec /system/bin/ifconfig eth0 down
+#
+#on property:persist.vendor.ethstate=4
+#    start user_drmservice
+#
+#on property:persist.vendor.userpoweroff=1
+#   start userfun 
+#on property:persist.vendor.userddrtest=1
+#   stop datadis
+#   start stress_ddr_test
+#on property:persist.vendor.userddrtest=2
+#   stop stress_ddr_test
+#   start datadis
+#
+#
