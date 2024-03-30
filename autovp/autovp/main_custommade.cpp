@@ -61,51 +61,6 @@ int main(int /*argc*/, char** /*argv*/)
 {
     ALOGI("GuiExt service start...");
 
-	char value[PROPERTY_VALUE_MAX];
-	property_get("ro.boot.simulation", value, "0");
-	if((strcmp(value, "1") == 0)){
-		config_vm_net_work();
-	}
-
-	int ret = 0;
-
-	if(access("/data/adb/config/build.simulation.prop", F_OK) != 0){
-		ret = system("mkdir -p /data/adb/config");
-		ALOGD("mkdir -p /data/adb/config errno = %s", strerror(errno));
-
-		ret = system("mkdir -p /data/adb/prebuilt/binary");
-		ALOGD("mkdir -p /data/adb/prebuilt/binary errno = %s", strerror(errno));
-
-		ret = system("cp /system/bin/custommadebin /data/adb/prebuilt/binary/custommadebin");
-		ALOGD("cp /system/bin/custommadebin /data/adb/prebuilt/binary/custommadebin errno = %s", strerror(errno));
-
-		ret = system("cp /system/build.simulation.prop /data/adb/config/build.simulation.prop");
-		ALOGD("cp /system/build.simulation.prop /data/adb/config/build.simulation.prop errno = %s", strerror(errno));
-
-		ret = system("cp /system/build.simulation.cell1.prop /data/adb/config/build.simulation.cell1.prop");
-		ALOGD("cp /system/build.simulation.cell1.prop /data/adb/config/build.simulation.cell1.prop errno = %s", strerror(errno));
-
-		ret = system("cp /system/build.simulation.cell2.prop /data/adb/config/build.simulation.cell2.prop");
-		ALOGD("cp /system/build.simulation.cell2.prop /data/adb/config/build.simulation.cell2.prop errno = %s", strerror(errno));
-
-		ret = system("cp /system/build.simulation.cell3.prop /data/adb/config/build.simulation.cell3.prop");
-		ALOGD("cp /system/build.simulation.cell3.prop /data/adb/config/build.simulation.cell3.prop errno = %s", strerror(errno));
-	}
-
-	if(access("/data/adb/prebuilt/binary/custommadebin", F_OK) == 0){
-		ret = system("rm /data/custommadebin");
-		ALOGD("rm /data/custommadebin errno = %s", strerror(errno));
-
-		ret = system("mv /data/adb/prebuilt/binary/custommadebin /data/custommadebin");
-		ALOGD("mv /data/adb/prebuilt/binary/custommadebin /data/custommadebin errno = %s", strerror(errno));
-	}
-
-	ret = system("chmod 700 /data/custommadebin");
-	ALOGD("chmod 700 /data/custommadebin errno = %s", strerror(errno));
-
-	ret = system("/data/custommadebin -mode cell");
-	ALOGD("/data/custommadebin -mode cell errno = %s", strerror(errno));
-
     ALOGD("CustomMade service exit...");
     return 0;
 }
