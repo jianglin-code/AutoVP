@@ -15,6 +15,10 @@
 #include <uapi/linux/android/binderfs.h>
 #include "binder_alloc.h"
 
+#ifdef CONFIG_DRV_NS
+#define MAX_CONTEXT 2
+#endif
+
 struct binder_context {
 	struct binder_node *binder_context_mgr_node;
 	struct mutex context_mgr_node_lock;
@@ -34,7 +38,11 @@ struct binder_context {
 struct binder_device {
 	struct hlist_node hlist;
 	struct miscdevice miscdev;
+#ifdef CONFIG_DRV_NS
+	struct binder_context context[MAX_CONTEXT];
+#else
 	struct binder_context context;
+#endif
 	struct inode *binderfs_inode;
 	refcount_t ref;
 };
@@ -455,6 +463,9 @@ struct binder_proc {
 	struct dentry *debugfs_entry;
 	struct binder_alloc alloc;
 	struct binder_context *context;
+#ifdef CONFIG_DRV_NS
+	struct binder_context *acontext[MAX_CONTEXT];
+#endif
 	spinlock_t inner_lock;
 	spinlock_t outer_lock;
 	struct dentry *binderfs_entry;

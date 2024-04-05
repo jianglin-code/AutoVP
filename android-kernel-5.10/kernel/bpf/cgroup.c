@@ -454,15 +454,21 @@ int __cgroup_bpf_attach(struct cgroup *cgrp,
 		/* replace_prog implies BPF_F_REPLACE, and vice versa */
 		return -EINVAL;
 
-	if (!hierarchy_allows_attach(cgrp, type))
-		return -EPERM;
+	pr_err("__cgroup_bpf_attach saved_flags=%d type=%d\n", saved_flags, type);
 
-	if (!list_empty(progs) && cgrp->bpf.flags[type] != saved_flags)
+	if (!hierarchy_allows_attach(cgrp, type)){
+		pr_err("hierarchy_allows_attach \n");
+		return -EPERM;
+	}
+
+	if (!list_empty(progs) && cgrp->bpf.flags[type] != saved_flags){
 		/* Disallow attaching non-overridable on top
 		 * of existing overridable in this cgroup.
 		 * Disallow attaching multi-prog if overridable or none
 		 */
+		pr_err("list_empty \n");
 		return -EPERM;
+	}
 
 	if (prog_list_length(progs) >= BPF_CGROUP_MAX_PROGS)
 		return -E2BIG;
@@ -486,6 +492,8 @@ int __cgroup_bpf_attach(struct cgroup *cgrp,
 		}
 		list_add_tail(&pl->node, progs);
 	}
+
+	pr_err("__cgroup_bpf_attach 1 saved_flags=%d type=%d\n", saved_flags, type);
 
 	pl->prog = prog;
 	pl->link = link;

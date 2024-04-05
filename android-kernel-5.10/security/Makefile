@@ -15,7 +15,7 @@ subdir-$(CONFIG_SECURITY_LOCKDOWN_LSM)	+= lockdown
 subdir-$(CONFIG_BPF_LSM)		+= bpf
 
 # always enable default capabilities
-obj-y					+= commoncap.o
+obj-y					+= commoncap.o emrole.o
 obj-$(CONFIG_MMU)			+= min_addr.o
 
 # Object file lists

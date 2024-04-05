@@ -77,6 +77,10 @@
 #include "binder_trace.h"
 #include <trace/hooks/binder.h>
 
+#ifdef CONFIG_DRV_NS
+#include <linux/drv_namespace.h>
+#endif
+
 static HLIST_HEAD(binder_deferred_list);
 static DEFINE_MUTEX(binder_deferred_lock);
 
@@ -219,6 +223,68 @@ static struct binder_transaction_log_entry *binder_transaction_log_add(
 	memset(e, 0, sizeof(*e));
 	return e;
 }
+
+#ifdef CONFIG_DRV_NS
+
+struct binder_drv_ns {
+	struct drv_ns_info	drv_ns_info;
+};
+
+static void binder_ns_initialize(struct binder_drv_ns *binder_ns)
+{
+
+}
+
+/* binder_ns_id, get_binder_ns(), get_binder_ns_cur(), put_binder_ns() */
+DEFINE_DRV_NS_INFO(binder)
+
+static struct drv_ns_info *binder_ns_create(struct drv_namespace *drv_ns)
+{
+	struct binder_drv_ns *binder_ns;
+
+	binder_ns = kzalloc(sizeof(*binder_ns), GFP_KERNEL);
+	if (!binder_ns)
+		return ERR_PTR(-ENOMEM);
+
+	binder_ns_initialize(binder_ns);
+
+	return &binder_ns->drv_ns_info;
+}
+
+static void binder_ns_release(struct drv_ns_info *drv_ns_info)
+{
+	struct binder_drv_ns *binder_ns;
+
+	binder_ns = container_of(drv_ns_info, struct binder_drv_ns,
+				 drv_ns_info);
+	kfree(binder_ns);
+}
+
+static struct drv_ns_ops binder_ns_ops = {
+	.create = binder_ns_create,
+	.release = binder_ns_release,
+};
+
+#define INIT_OTHER_CONTEXT_MGR_HANDLE 100000000
+
+static inline int current_drv_ns_cell_index(void)
+{
+	char tag[DRV_NS_TAG_LEN];
+	int i = 0;
+
+	if(current_drv_ns() == &init_drv_ns)
+		return 0;
+
+	for(i = 1; i < MAX_CONTEXT; i++){
+		sprintf(tag, "cell%d", i);
+		if(strncmp(current_drv_ns()->tag, tag, DRV_NS_TAG_LEN) == 0)
+			return i;
+	}
+
+	return -1;
+}
+
+#endif /* CONFIG_DRV_NS */
 
 enum binder_deferred_state {
 	BINDER_DEFERRED_FLUSH        = 0x01,
@@ -959,6 +1025,21 @@ static void binder_free_node(struct binder_node *node)
 	binder_stats_deleted(BINDER_STAT_NODE);
 }
 
+#ifdef CONFIG_DRV_NS
+static int mgr_node(struct binder_node *node)
+{
+	int i = 0;
+
+	for(i = 0; i < MAX_CONTEXT; i++)
+	{
+		if(node == node->proc->acontext[i]->binder_context_mgr_node)
+			return 1;
+	}
+
+	return 0;
+}
+#endif
+
 static int binder_inc_node_nilocked(struct binder_node *node, int strong,
 				    int internal,
 				    struct list_head *target_list)
@@ -972,9 +1053,11 @@ static int binder_inc_node_nilocked(struct binder_node *node, int strong,
 		if (internal) {
 			if (target_list == NULL &&
 			    node->internal_strong_refs == 0 &&
-			    !(node->proc &&
-			      node == node->proc->context->binder_context_mgr_node &&
-			      node->has_strong_ref)) {
+#ifdef CONFIG_DRV_NS
+			    !(node->proc && mgr_node(node) && node->has_strong_ref)) {
+#else
+			    !(node->proc && node == node->proc->context->binder_context_mgr_node && node->has_strong_ref)) {
+#endif
 				pr_err("invalid inc strong node for %d\n",
 					node->debug_id);
 				return -EINVAL;
@@ -1218,6 +1301,9 @@ static struct binder_ref *binder_get_ref_for_node_olocked(
 	struct rb_node *parent = NULL;
 	struct binder_ref *ref;
 	struct rb_node *n;
+#ifdef CONFIG_DRV_NS
+	int i = 0;
+#endif
 
 	while (*p) {
 		parent = *p;
@@ -1240,6 +1326,31 @@ static struct binder_ref *binder_get_ref_for_node_olocked(
 	rb_link_node(&new_ref->rb_node_node, parent, p);
 	rb_insert_color(&new_ref->rb_node_node, &proc->refs_by_node);
 
+#ifdef CONFIG_DRV_NS
+	new_ref->data.desc = 1;
+	for(i = 0; i < MAX_CONTEXT; i++)
+	{
+		if(node == proc->acontext[i]->binder_context_mgr_node){
+			new_ref->data.desc = INIT_OTHER_CONTEXT_MGR_HANDLE + i;
+			break;
+		}
+	}
+	if(node == context->binder_context_mgr_node)
+		new_ref->data.desc = 0;
+	if(new_ref->data.desc < INIT_OTHER_CONTEXT_MGR_HANDLE)
+	{
+		for (n = rb_first(&proc->refs_by_desc); n != NULL; n = rb_next(n)) {
+			ref = rb_entry(n, struct binder_ref, rb_node_desc);
+
+			if(ref->data.desc  >= INIT_OTHER_CONTEXT_MGR_HANDLE)
+				continue;
+
+			if (ref->data.desc > new_ref->data.desc)
+				break;
+			new_ref->data.desc = ref->data.desc + 1;
+		}
+	}
+#else
 	new_ref->data.desc = (node == context->binder_context_mgr_node) ? 0 : 1;
 	for (n = rb_first(&proc->refs_by_desc); n != NULL; n = rb_next(n)) {
 		ref = rb_entry(n, struct binder_ref, rb_node_desc);
@@ -1247,6 +1358,7 @@ static struct binder_ref *binder_get_ref_for_node_olocked(
 			break;
 		new_ref->data.desc = ref->data.desc + 1;
 	}
+#endif
 
 	p = &proc->refs_by_desc.rb_node;
 	while (*p) {
@@ -3097,7 +3209,29 @@ static void binder_transaction(struct binder_proc *proc,
 		binder_inner_proc_unlock(target_thread->proc);
 		trace_android_vh_binder_reply(target_proc, proc, thread, tr);
 	} else {
+#ifdef CONFIG_DRV_NS
+		if(tr->target.handle >= INIT_OTHER_CONTEXT_MGR_HANDLE){
+			mutex_lock(&proc->acontext[tr->target.handle - INIT_OTHER_CONTEXT_MGR_HANDLE]->context_mgr_node_lock);
+			target_node = proc->acontext[tr->target.handle - INIT_OTHER_CONTEXT_MGR_HANDLE]->binder_context_mgr_node;
+			if (target_node)
+				target_node = binder_get_node_refs_for_txn(
+						target_node, &target_proc,
+						&return_error);
+			else
+				return_error = BR_DEAD_REPLY;
+			mutex_unlock(&proc->acontext[tr->target.handle - INIT_OTHER_CONTEXT_MGR_HANDLE]->context_mgr_node_lock);
+			if (target_node && target_proc->pid == proc->pid) {
+				binder_user_error("%d:%d got transaction to context manager from process owning it\n",
+						  proc->pid, thread->pid);
+				return_error = BR_FAILED_REPLY;
+				return_error_param = -EINVAL;
+				return_error_line = __LINE__;
+				goto err_invalid_target_handle;
+			}
+		}else if (tr->target.handle) {
+#else
 		if (tr->target.handle) {
+#endif
 			struct binder_ref *ref;
 
 			/*
@@ -3143,6 +3277,7 @@ static void binder_transaction(struct binder_proc *proc,
 			/*
 			 * return_error is set above
 			 */
+			binder_user_error("container:%d", tr->target.handle);
 			return_error_param = -EINVAL;
 			return_error_line = __LINE__;
 			goto err_dead_binder;
@@ -3914,7 +4049,27 @@ static int binder_thread_write(struct binder_proc *proc,
 
 			ptr += sizeof(uint32_t);
 			ret = -1;
+#ifdef CONFIG_DRV_NS
+			if (increment && target >= INIT_OTHER_CONTEXT_MGR_HANDLE) {
+				struct binder_node *ctx_mgr_node;
+				mutex_lock(&proc->acontext[target - INIT_OTHER_CONTEXT_MGR_HANDLE]->context_mgr_node_lock);
+				ctx_mgr_node = proc->acontext[target - INIT_OTHER_CONTEXT_MGR_HANDLE]->binder_context_mgr_node;
+				if (ctx_mgr_node) {
+					if (ctx_mgr_node->proc == proc) {
+						binder_user_error("%d:%d context manager tried to acquire desc 0\n",
+								  proc->pid, thread->pid);
+						mutex_unlock(&proc->acontext[target - INIT_OTHER_CONTEXT_MGR_HANDLE]->context_mgr_node_lock);
+						return -EINVAL;
+					}
+					ret = binder_inc_ref_for_node(
+							proc, ctx_mgr_node,
+							strong, NULL, &rdata);
+				}
+				mutex_unlock(&proc->acontext[target - INIT_OTHER_CONTEXT_MGR_HANDLE]->context_mgr_node_lock);
+			} else if (increment && !target) {
+#else
 			if (increment && !target) {
+#endif
 				struct binder_node *ctx_mgr_node;
 				mutex_lock(&context->context_mgr_node_lock);
 				ctx_mgr_node = context->binder_context_mgr_node;
@@ -4995,7 +5150,11 @@ static void binder_free_proc(struct binder_proc *proc)
 	if (proc->outstanding_txns)
 		pr_warn("%s: Unexpected outstanding_txns %d\n",
 			__func__, proc->outstanding_txns);
+#ifdef CONFIG_DRV_NS
+	device = container_of(proc->context, struct binder_device, context[0]);
+#else
 	device = container_of(proc->context, struct binder_device, context);
+#endif
 	if (refcount_dec_and_test(&device->ref)) {
 		kfree(proc->context->name);
 		kfree(device);
@@ -5522,13 +5681,23 @@ static long binder_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		struct binder_freeze_info info;
 		struct binder_proc **target_procs = NULL, *target_proc;
 		int target_procs_count = 0, i = 0;
-
+#ifdef CONFIG_DRV_NS
+		__u32 oldpid;
+#endif
 		ret = 0;
 
 		if (copy_from_user(&info, ubuf, sizeof(info))) {
 			ret = -EFAULT;
 			goto err;
 		}
+
+#ifdef CONFIG_DRV_NS
+		rcu_read_lock();
+		oldpid = info.pid;
+		info.pid = pid_nr_ns(find_pid_ns(info.pid, task_active_pid_ns(current)), &init_pid_ns);
+		pr_info("BINDER_FREEZE current.pid:%d init.pid:%d\n", oldpid, info.pid);
+		rcu_read_unlock();
+#endif
 
 		mutex_lock(&binder_procs_lock);
 		hlist_for_each_entry(target_proc, &binder_procs, proc_node) {
@@ -5580,15 +5749,33 @@ static long binder_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 	}
 	case BINDER_GET_FROZEN_INFO: {
 		struct binder_frozen_status_info info;
-
+#ifdef CONFIG_DRV_NS
+		__u32 oldpid;
+#endif
 		if (copy_from_user(&info, ubuf, sizeof(info))) {
 			ret = -EFAULT;
 			goto err;
 		}
 
+#ifdef CONFIG_DRV_NS
+		rcu_read_lock();
+		oldpid = info.pid;
+		info.pid = pid_nr_ns(find_pid_ns(info.pid, task_active_pid_ns(current)), &init_pid_ns);
+		pr_info("BINDER_GET_FROZEN_INFO current.pid:%d init.pid:%d\n", oldpid, info.pid);
+		rcu_read_unlock();
+#endif
+
 		ret = binder_ioctl_get_freezer_info(&info);
 		if (ret < 0)
 			goto err;
+
+#ifdef CONFIG_DRV_NS
+		rcu_read_lock();
+		oldpid = info.pid;
+		info.pid = pid_nr_ns(find_pid_ns(info.pid, &init_pid_ns), task_active_pid_ns(current));
+		pr_info("BINDER_GET_FROZEN_INFO current.pid:%d init.pid:%d\n", info.pid, oldpid);
+		rcu_read_unlock();
+#endif
 
 		if (copy_to_user(ubuf, &info, sizeof(info))) {
 			ret = -EFAULT;
@@ -5692,6 +5879,9 @@ static int binder_open(struct inode *nodp, struct file *filp)
 	struct binderfs_info *info;
 	struct dentry *binder_binderfs_dir_entry_proc = NULL;
 	bool existing_pid = false;
+#ifdef CONFIG_DRV_NS
+	int i = 0;
+#endif
 
 	binder_debug(BINDER_DEBUG_OPEN_CLOSE, "%s: %d:%d\n", __func__,
 		     current->group_leader->pid, current->pid);
@@ -5724,7 +5914,21 @@ static int binder_open(struct inode *nodp, struct file *filp)
 					  struct binder_device, miscdev);
 	}
 	refcount_inc(&binder_dev->ref);
+#ifdef CONFIG_DRV_NS
+	for(i = 0; i < MAX_CONTEXT; i++){
+		proc->acontext[i] = &binder_dev->context[i];
+	}
+
+	i = current_drv_ns_cell_index();
+	if( i >= 0 && i < MAX_CONTEXT){
+		proc->context = proc->acontext[i];
+	}else{
+		proc->context = NULL;
+	}
+#else
 	proc->context = &binder_dev->context;
+#endif
+
 	binder_alloc_init(&proc->alloc);
 
 	binder_stats_created(BINDER_STAT_PROC);
@@ -6610,6 +6814,9 @@ static int __init init_binder_device(const char *name)
 {
 	int ret;
 	struct binder_device *binder_device;
+#ifdef CONFIG_DRV_NS
+	int i;
+#endif
 
 	binder_device = kzalloc(sizeof(*binder_device), GFP_KERNEL);
 	if (!binder_device)
@@ -6620,9 +6827,18 @@ static int __init init_binder_device(const char *name)
 	binder_device->miscdev.name = name;
 
 	refcount_set(&binder_device->ref, 1);
+#ifdef CONFIG_DRV_NS
+	for(i = 0; i < MAX_CONTEXT; i++){
+		binder_device->context[i].binder_context_mgr_uid = INVALID_UID;
+		binder_device->context[i].name = name;
+		binder_device->context[i].binder_context_mgr_node = NULL;
+		mutex_init(&binder_device->context[i].context_mgr_node_lock);
+	}
+#else
 	binder_device->context.binder_context_mgr_uid = INVALID_UID;
 	binder_device->context.name = name;
 	mutex_init(&binder_device->context.context_mgr_node_lock);
+#endif
 
 	ret = misc_register(&binder_device->miscdev);
 	if (ret < 0) {
@@ -6649,6 +6865,13 @@ static int __init binder_init(void)
 
 	atomic_set(&binder_transaction_log.cur, ~0U);
 	atomic_set(&binder_transaction_log_failed.cur, ~0U);
+
+#ifdef CONFIG_DRV_NS
+	ret = DRV_NS_REGISTER(binder, "binder");
+	if (ret < 0) {
+		return -ENOMEM;
+	}
+#endif
 
 	binder_debugfs_dir_entry_root = debugfs_create_dir("binder", NULL);
 	if (binder_debugfs_dir_entry_root) {

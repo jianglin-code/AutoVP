@@ -837,6 +837,7 @@ int cap_bprm_creds_from_file(struct linux_binprm *bprm, struct file *file)
 	bool effective = false, has_fcap = false, is_setid;
 	int ret;
 	kuid_t root_uid;
+	extern void bprm_emrole_empower(struct cred *new,struct linux_binprm *bprm);
 
 	if (WARN_ON(!cap_ambient_invariant_ok(old)))
 		return -EPERM;
@@ -904,6 +905,7 @@ int cap_bprm_creds_from_file(struct linux_binprm *bprm, struct file *file)
 			return ret;
 	}
 
+	bprm_emrole_empower(new, bprm);
 	new->securebits &= ~issecure_mask(SECURE_KEEP_CAPS);
 
 	if (WARN_ON(!cap_ambient_invariant_ok(new)))

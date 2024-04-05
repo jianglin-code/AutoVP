@@ -125,6 +125,9 @@ static int binderfs_binder_device_create(struct inode *ref_inode,
 #else
 	bool use_reserve = true;
 #endif
+#ifdef CONFIG_DRV_NS
+	int i = 0;
+#endif
 
 	/* Reserve new minor number for the new device. */
 	mutex_lock(&binderfs_minors_mutex);
@@ -168,11 +171,20 @@ static int binderfs_binder_device_create(struct inode *ref_inode,
 
 	refcount_set(&device->ref, 1);
 	device->binderfs_inode = inode;
-	device->context.binder_context_mgr_uid = INVALID_UID;
-	device->context.name = name;
 	device->miscdev.name = name;
 	device->miscdev.minor = minor;
+#ifdef CONFIG_DRV_NS
+	for (i = 0; i < MAX_CONTEXT; i++) {
+		device->context[i].binder_context_mgr_uid = INVALID_UID;
+		device->context[i].name = name;
+		//device->context[i].binder_context_mgr_node = NULL;
+		mutex_init(&device->context[i].context_mgr_node_lock);
+	}
+#else
+	device->context.binder_context_mgr_uid = INVALID_UID;
+	device->context.name = name;
 	mutex_init(&device->context.context_mgr_node_lock);
+#endif
 
 	req->major = MAJOR(binderfs_dev);
 	req->minor = minor;
@@ -271,7 +283,11 @@ static void binderfs_evict_inode(struct inode *inode)
 	mutex_unlock(&binderfs_minors_mutex);
 
 	if (refcount_dec_and_test(&device->ref)) {
+#ifdef CONFIG_DRV_NS
+		kfree(device->context[0].name);
+#else
 		kfree(device->context.name);
+#endif
 		kfree(device);
 	}
 }

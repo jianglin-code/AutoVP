@@ -11,6 +11,9 @@ struct ipc_namespace;
 struct pid_namespace;
 struct cgroup_namespace;
 struct fs_struct;
+#ifdef CONFIG_DRV_NS
+struct drv_namespace;
+#endif
 
 /*
  * A structure to contain pointers to all per-process
@@ -38,6 +41,9 @@ struct nsproxy {
 	struct time_namespace *time_ns;
 	struct time_namespace *time_ns_for_children;
 	struct cgroup_namespace *cgroup_ns;
+#ifdef CONFIG_DRV_NS
+	struct drv_namespace *drv_ns;
+#endif
 };
 extern struct nsproxy init_nsproxy;
 
@@ -90,6 +96,12 @@ static inline struct cred *nsset_cred(struct nsset *set)
  *     task_unlock(task);
  *
  */
+#ifdef CONFIG_DRV_NS
+static inline struct nsproxy *task_nsproxy(struct task_struct *tsk)
+{
+	return rcu_dereference(tsk->nsproxy);
+}
+#endif
 
 int copy_namespaces(unsigned long flags, struct task_struct *tsk);
 void exit_task_namespaces(struct task_struct *tsk);

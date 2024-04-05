@@ -26,6 +26,9 @@
 #include <linux/syscalls.h>
 #include <linux/cgroup.h>
 #include <linux/perf_event.h>
+#ifdef CONFIG_DRV_NS
+#include <linux/drv_namespace.h>
+#endif
 
 static struct kmem_cache *nsproxy_cachep;
 
@@ -46,6 +49,9 @@ struct nsproxy init_nsproxy = {
 #ifdef CONFIG_TIME_NS
 	.time_ns		= &init_time_ns,
 	.time_ns_for_children	= &init_time_ns,
+#endif
+#ifdef CONFIG_DRV_NS
+	.drv_ns			= &init_drv_ns,
 #endif
 };
 
@@ -121,8 +127,22 @@ static struct nsproxy *create_new_namespaces(unsigned long flags,
 	}
 	new_nsp->time_ns = get_time_ns(tsk->nsproxy->time_ns);
 
+#ifdef CONFIG_DRV_NS
+	new_nsp->drv_ns = copy_drv_ns(flags, tsk, new_nsp->pid_ns_for_children);
+	if (IS_ERR(new_nsp->drv_ns)) {
+		err = PTR_ERR(new_nsp->drv_ns);
+		goto out_drv;
+	}
+#endif
 	return new_nsp;
 
+#ifdef CONFIG_DRV_NS
+out_drv:
+	if (new_nsp->time_ns_for_children)
+		put_time_ns(new_nsp->time_ns_for_children);
+	if (new_nsp->time_ns)
+		put_time_ns(new_nsp->time_ns);
+#endif
 out_time:
 	put_net(new_nsp->net_ns);
 out_net:
@@ -206,6 +226,10 @@ void free_nsproxy(struct nsproxy *ns)
 		put_time_ns(ns->time_ns_for_children);
 	put_cgroup_ns(ns->cgroup_ns);
 	put_net(ns->net_ns);
+#ifdef CONFIG_DRV_NS
+	if (ns->drv_ns)
+		put_drv_ns(ns->drv_ns);
+#endif
 	kmem_cache_free(nsproxy_cachep, ns);
 }
 

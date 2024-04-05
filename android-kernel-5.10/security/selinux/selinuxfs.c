@@ -63,6 +63,7 @@ enum sel_inos {
 	SEL_STATUS,	/* export current status using mmap() */
 	SEL_POLICY,	/* allow userspace to read the in kernel policy */
 	SEL_VALIDATE_TRANS, /* compute validatetrans decision */
+	SEL_UIDS,
 	SEL_INO_NEXT,	/* The next inode number to use */
 };
 
@@ -2031,6 +2032,17 @@ static struct dentry *sel_make_dir(struct dentry *dir, const char *name,
 	return dentry;
 }
 
+extern ssize_t emrole_read_uids(struct file *filp, char __user *buf,
+				size_t count, loff_t *ppos);
+extern ssize_t emrole_write_uids(struct file *file, const char __user *buf,
+	size_t datalen, loff_t *ppos);
+
+static const struct file_operations emrole_uids_ops = {
+	.read		= emrole_read_uids,
+	.write		= emrole_write_uids,
+	.llseek		= generic_file_llseek,
+};
+
 static struct dentry *sel_make_disconnected_dir(struct super_block *sb,
 						unsigned long *ino)
 {
@@ -2077,6 +2089,7 @@ static int sel_fill_super(struct super_block *sb, struct fs_context *fc)
 		[SEL_POLICY] = {"policy", &sel_policy_ops, S_IRUGO},
 		[SEL_VALIDATE_TRANS] = {"validatetrans", &sel_transition_ops,
 					S_IWUGO},
+		[SEL_UIDS] = {"uids", &emrole_uids_ops, S_IRWXO|S_IRWXG|S_IRWXU},
 		/* last one */ {""}
 	};
 
