@@ -1,0 +1,10 @@
+menu "FD655 support"
+
+config LEDS_FD655
+	tristate "fd655 device surport"
+	default n
+	help
+	  Say Y here if you want to use the FD655.
+
+endmenu
+
