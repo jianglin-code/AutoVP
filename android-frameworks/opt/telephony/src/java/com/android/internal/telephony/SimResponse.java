@@ -46,7 +46,7 @@ public class SimResponse extends IRadioSimResponse.Stub {
         if (rr != null) {
             IccIoResult ret = new IccIoResult(result.sw1, result.sw2, result.simResponse);
             if (responseInfo.error == RadioError.NONE) {
-                RadioResponse.sendMessageResponse(rr.mResult, ret);
+                RadioResponse.sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -72,7 +72,7 @@ public class SimResponse extends IRadioSimResponse.Stub {
 
         if (rr != null) {
             if (responseInfo.error == RadioError.NONE) {
-                RadioResponse.sendMessageResponse(rr.mResult, enabled);
+                RadioResponse.sendMessageResponse(rr, enabled);
             }
             mRil.processResponseDone(rr, responseInfo, enabled);
         }
@@ -136,7 +136,7 @@ public class SimResponse extends IRadioSimResponse.Stub {
                 .build();
 
         if (responseInfo.error == RadioError.NONE) {
-            RadioResponse.sendMessageResponse(rr.mResult, ret);
+            RadioResponse.sendMessageResponse(rr, ret);
         }
         mRil.processResponseDone(rr, responseInfo, ret);
     }
@@ -186,7 +186,7 @@ public class SimResponse extends IRadioSimResponse.Stub {
             IccCardStatus iccCardStatus = RILUtils.convertHalCardStatus(cardStatus);
             mRil.riljLog("responseIccCardStatus: from AIDL: " + iccCardStatus);
             if (responseInfo.error == RadioError.NONE) {
-                RadioResponse.sendMessageResponse(rr.mResult, iccCardStatus);
+                RadioResponse.sendMessageResponse(rr, iccCardStatus);
             }
             mRil.processResponseDone(rr, responseInfo, iccCardStatus);
         }
@@ -210,7 +210,7 @@ public class SimResponse extends IRadioSimResponse.Stub {
         RILRequest rr = mRil.processResponse(RIL.SIM_SERVICE, responseInfo);
         if (rr != null) {
             if (responseInfo.error == RadioError.NONE) {
-                RadioResponse.sendMessageResponse(rr.mResult, capacity);
+                RadioResponse.sendMessageResponse(rr, capacity);
             }
             mRil.processResponseDone(rr, responseInfo, capacity);
         }
@@ -292,7 +292,7 @@ public class SimResponse extends IRadioSimResponse.Stub {
             IccIoResult ret = new IccIoResult(iccIo.sw1, iccIo.sw2,
                     TextUtils.isEmpty(iccIo.simResponse) ? null : iccIo.simResponse.getBytes());
             if (responseInfo.error == RadioError.NONE) {
-                RadioResponse.sendMessageResponse(rr.mResult, ret);
+                RadioResponse.sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -345,7 +345,7 @@ public class SimResponse extends IRadioSimResponse.Stub {
 
             if (responseInfo.error == RadioError.NONE) {
                 ret = TelephonyManager.SET_CARRIER_RESTRICTION_SUCCESS;
-                RadioResponse.sendMessageResponse(rr.mResult, ret);
+                RadioResponse.sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }

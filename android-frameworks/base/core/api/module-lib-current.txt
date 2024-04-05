@@ -355,6 +355,8 @@ package android.os {
   }
 
   public final class ServiceManager {
+    method @Nullable public static android.os.IBinder getInitService(@Nullable String);
+    method @Nullable public static android.os.IBinder getOtherSystemService(@Nullable String, int);
     method public static boolean isDeclared(@NonNull String);
     method @Nullable public static android.os.IBinder waitForDeclaredService(@NonNull String);
   }

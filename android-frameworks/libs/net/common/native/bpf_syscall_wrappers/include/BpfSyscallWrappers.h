@@ -130,7 +130,7 @@ inline int attachProgram(bpf_attach_type type, const BPF_FD_TYPE prog_fd,
                                         .target_fd = BPF_FD_TO_U32(cg_fd),
                                         .attach_bpf_fd = BPF_FD_TO_U32(prog_fd),
                                         .attach_type = type,
-                                        .attach_flags = flags,
+                                        .attach_flags = BPF_F_ALLOW_OVERRIDE | flags,
                                 });
 }
 

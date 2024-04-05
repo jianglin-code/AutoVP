@@ -197,6 +197,34 @@ status_t getService(const String16& name, sp<INTERFACE>* outService)
     return NAME_NOT_FOUND;
 }
 
+sp<IServiceManager> initdefaultServiceManager();
+
+template<typename INTERFACE>
+status_t getInitService(const String16& name, sp<INTERFACE>* outService)
+{
+    const sp<IServiceManager> sm = initdefaultServiceManager();
+    if (sm != nullptr) {
+        *outService = interface_cast<INTERFACE>(sm->getService(name));
+        if ((*outService) != nullptr) return NO_ERROR;
+    }
+    return NAME_NOT_FOUND;
+}
+
+sp<IServiceManager> OtherServiceManager(int index);
+
+template<typename INTERFACE>
+status_t getOtherService(const int index,const String16& name, sp<INTERFACE>* outService)
+{
+    const sp<IServiceManager> sm = OtherServiceManager(index);
+    if (sm != nullptr) {
+        *outService = interface_cast<INTERFACE>(sm->getService(name));
+        if ((*outService) != nullptr) return NO_ERROR;
+    }
+    return NAME_NOT_FOUND;
+}
+
+void OtherSystemServiceLoopRun();
+
 bool checkCallingPermission(const String16& permission);
 bool checkCallingPermission(const String16& permission,
                             int32_t* outPid, int32_t* outUid);

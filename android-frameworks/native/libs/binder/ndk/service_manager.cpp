@@ -24,6 +24,7 @@
 #include <binder/LazyServiceRegistrar.h>
 
 using ::android::defaultServiceManager;
+using ::android::initdefaultServiceManager;
 using ::android::IBinder;
 using ::android::IServiceManager;
 using ::android::sp;
@@ -64,6 +65,20 @@ AIBinder* AServiceManager_getService(const char* instance) {
     AIBinder_incStrong(ret.get());
     return ret.get();
 }
+
+AIBinder* AServiceManager_getInitService(const char* instance) {
+    if (instance == nullptr) {
+        return nullptr;
+    }
+
+    sp<IServiceManager> sm = initdefaultServiceManager();
+    sp<IBinder> binder = sm->getService(String16(instance));
+
+    sp<AIBinder> ret = ABpBinder::lookupOrCreateFromBinder(binder);
+    AIBinder_incStrong(ret.get());
+    return ret.get();
+}
+
 binder_status_t AServiceManager_registerLazyService(AIBinder* binder, const char* instance) {
     if (binder == nullptr || instance == nullptr) {
         return STATUS_UNEXPECTED_NULL;

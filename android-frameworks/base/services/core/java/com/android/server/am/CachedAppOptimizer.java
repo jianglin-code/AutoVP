@@ -771,7 +771,10 @@ public final class CachedAppOptimizer {
         FileReader fr = null;
 
         try {
-            fr = new FileReader(getFreezerCheckPath());
+            String text = getFreezerCheckPath();
+            Slog.d(TAG_AM, "isFreezerSupported text : " + text);
+
+            fr = new FileReader(text);
             char state = (char) fr.read();
 
             if (state == '1' || state == '0') {

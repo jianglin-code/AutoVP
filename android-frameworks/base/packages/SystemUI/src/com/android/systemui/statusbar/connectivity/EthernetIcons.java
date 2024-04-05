@@ -16,11 +16,12 @@
 
 package com.android.systemui.statusbar.connectivity;
 
+import com.android.settingslib.graph.SignalDrawable;
 import com.android.systemui.R;
 
 class EthernetIcons {
     static final int[][] ETHERNET_ICONS = {
-            { R.drawable.stat_sys_ethernet },
-            { R.drawable.stat_sys_ethernet_fully },
+            { com.android.internal.R.drawable.ic_wifi_signal_4 },
+            { com.android.internal.R.drawable.ic_wifi_signal_4 },
     };
 }

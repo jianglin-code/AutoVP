@@ -1389,22 +1389,25 @@ public class AudioService extends IAudioService.Stub
 
         mDeviceBroker.onSystemReady();
 
-        if (mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_HDMI_CEC)) {
-            synchronized (mHdmiClientLock) {
-                mHdmiManager = mContext.getSystemService(HdmiControlManager.class);
-                if (mHdmiManager != null) {
-                    mHdmiManager.addHdmiControlStatusChangeListener(
-                            mHdmiControlStatusChangeListenerCallback);
-                    mHdmiManager.addHdmiCecVolumeControlFeatureListener(mContext.getMainExecutor(),
-                            mMyHdmiCecVolumeControlFeatureListener);
+        if(SystemProperties.get("ro.boot.vm","0").equals("0"))
+        {
+            if (mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_HDMI_CEC)) {
+                synchronized (mHdmiClientLock) {
+                    mHdmiManager = mContext.getSystemService(HdmiControlManager.class);
+                    if (mHdmiManager != null) {
+                        mHdmiManager.addHdmiControlStatusChangeListener(
+                                mHdmiControlStatusChangeListenerCallback);
+                        mHdmiManager.addHdmiCecVolumeControlFeatureListener(mContext.getMainExecutor(),
+                                mMyHdmiCecVolumeControlFeatureListener);
+                    }
+                    mHdmiTvClient = mHdmiManager.getTvClient();
+                    if (mHdmiTvClient != null) {
+                        mFixedVolumeDevices.removeAll(
+                                AudioSystem.DEVICE_ALL_HDMI_SYSTEM_AUDIO_AND_SPEAKER_SET);
+                    }
+                    mHdmiPlaybackClient = mHdmiManager.getPlaybackClient();
+                    mHdmiAudioSystemClient = mHdmiManager.getAudioSystemClient();
                 }
-                mHdmiTvClient = mHdmiManager.getTvClient();
-                if (mHdmiTvClient != null) {
-                    mFixedVolumeDevices.removeAll(
-                            AudioSystem.DEVICE_ALL_HDMI_SYSTEM_AUDIO_AND_SPEAKER_SET);
-                }
-                mHdmiPlaybackClient = mHdmiManager.getPlaybackClient();
-                mHdmiAudioSystemClient = mHdmiManager.getAudioSystemClient();
             }
         }
 
@@ -4502,7 +4505,7 @@ public class AudioService extends IAudioService.Stub
      * @hide
      */
     private boolean isTablet() {
-        String product = SystemProperties.get("ro.target.product","");
+        String product = SystemProperties.get("ro.target.product.real","");
         if(product.equals("tablet")){
             return true;
         }

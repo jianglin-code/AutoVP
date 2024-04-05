@@ -92,6 +92,7 @@ public abstract class ExtconStateObserver<S> extends ExtconUEventObserver {
         S state = null;
 
         String status = event.get("STATE");
+        if(status == null) return;
         String ueventPath = extconInfo.getDeviceUeventPath();
         String alias = getAliasName(ueventPath);
         if (alias == null) {

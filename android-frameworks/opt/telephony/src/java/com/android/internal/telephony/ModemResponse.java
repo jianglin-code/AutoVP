@@ -86,7 +86,7 @@ public class ModemResponse extends IRadioModemResponse.Stub {
         if (rr != null) {
             ArrayList<HardwareConfig> ret = RILUtils.convertHalHardwareConfigList(config);
             if (responseInfo.error == RadioError.NONE) {
-                RadioResponse.sendMessageResponse(rr.mResult, ret);
+                RadioResponse.sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -131,7 +131,7 @@ public class ModemResponse extends IRadioModemResponse.Stub {
                 ret = new ModemActivityInfo(SystemClock.elapsedRealtime(), 0, 0, astsi);
                 responseInfo.error = RadioError.NONE;
             }
-            RadioResponse.sendMessageResponse(rr.mResult, ret);
+            RadioResponse.sendMessageResponse(rr, ret);
             mRil.processResponseDone(rr, responseInfo, ret);
         }
     }
@@ -145,7 +145,7 @@ public class ModemResponse extends IRadioModemResponse.Stub {
 
         if (rr != null) {
             if (responseInfo.error == RadioError.NONE) {
-                RadioResponse.sendMessageResponse(rr.mResult, isEnabled);
+                RadioResponse.sendMessageResponse(rr, isEnabled);
             }
             mRil.processResponseDone(rr, responseInfo, isEnabled);
         }
@@ -168,7 +168,7 @@ public class ModemResponse extends IRadioModemResponse.Stub {
                 responseInfo.error = RadioError.NONE;
             }
             if (responseInfo.error == RadioError.NONE) {
-                RadioResponse.sendMessageResponse(rr.mResult, ret);
+                RadioResponse.sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -228,7 +228,7 @@ public class ModemResponse extends IRadioModemResponse.Stub {
         if (rr != null) {
             RadioCapability ret = RILUtils.convertHalRadioCapability(radioCapability, mRil);
             if (responseInfo.error == RadioError.NONE) {
-                RadioResponse.sendMessageResponse(rr.mResult, ret);
+                RadioResponse.sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }

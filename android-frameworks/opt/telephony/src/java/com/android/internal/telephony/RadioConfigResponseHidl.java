@@ -54,7 +54,7 @@ public class RadioConfigResponseHidl extends
             ArrayList<IccSlotStatus> ret = RILUtils.convertHalSlotStatus(slotStatus);
             if (info.error == android.hardware.radio.V1_0.RadioError.NONE) {
                 // send response
-                RadioResponse.sendMessageResponse(rr.mResult, ret);
+                RadioResponse.sendMessageResponse(rr, ret);
                 logd(rr, RILUtils.requestToString(rr.mRequest) + " " + ret.toString());
             } else {
                 rr.onError(info.error, ret);
@@ -75,7 +75,7 @@ public class RadioConfigResponseHidl extends
         if (rr != null) {
             if (info.error == android.hardware.radio.V1_0.RadioError.NONE) {
                 // send response
-                RadioResponse.sendMessageResponse(rr.mResult, null);
+                RadioResponse.sendMessageResponse(rr, null);
                 logd(rr, RILUtils.requestToString(rr.mRequest));
             } else {
                 rr.onError(info.error, null);
@@ -99,7 +99,7 @@ public class RadioConfigResponseHidl extends
                     mRadioConfig.getDeviceNrCapabilities(), phoneCapability);
             if (info.error == android.hardware.radio.V1_0.RadioError.NONE) {
                 // send response
-                RadioResponse.sendMessageResponse(rr.mResult, ret);
+                RadioResponse.sendMessageResponse(rr, ret);
                 logd(rr, RILUtils.requestToString(rr.mRequest) + " " + ret.toString());
             } else {
                 rr.onError(info.error, ret);
@@ -120,7 +120,7 @@ public class RadioConfigResponseHidl extends
         if (rr != null) {
             if (info.error == android.hardware.radio.V1_0.RadioError.NONE) {
                 // send response
-                RadioResponse.sendMessageResponse(rr.mResult, null);
+                RadioResponse.sendMessageResponse(rr, null);
                 logd(rr, RILUtils.requestToString(rr.mRequest));
             } else {
                 rr.onError(info.error, null);
@@ -142,7 +142,7 @@ public class RadioConfigResponseHidl extends
         if (rr != null) {
             if (info.error == android.hardware.radio.V1_0.RadioError.NONE) {
                 // send response
-                RadioResponse.sendMessageResponse(rr.mResult, rr.mRequest);
+                RadioResponse.sendMessageResponse(rr, rr.mRequest);
                 logd(rr, RILUtils.requestToString(rr.mRequest));
             } else {
                 rr.onError(info.error, null);
@@ -164,7 +164,7 @@ public class RadioConfigResponseHidl extends
         if (rr != null) {
             if (info.error == android.hardware.radio.V1_0.RadioError.NONE) {
                 // send response
-                RadioResponse.sendMessageResponse(rr.mResult, modemsConfig);
+                RadioResponse.sendMessageResponse(rr, modemsConfig);
                 logd(rr, RILUtils.requestToString(rr.mRequest));
             } else {
                 rr.onError(info.error, modemsConfig);
@@ -188,7 +188,7 @@ public class RadioConfigResponseHidl extends
             ArrayList<IccSlotStatus> ret = RILUtils.convertHalSlotStatus(slotStatus);
             if (info.error == android.hardware.radio.V1_0.RadioError.NONE) {
                 // send response
-                RadioResponse.sendMessageResponse(rr.mResult, ret);
+                RadioResponse.sendMessageResponse(rr, ret);
                 logd(rr, RILUtils.requestToString(rr.mRequest) + " " + ret.toString());
             } else {
                 rr.onError(info.error, ret);
@@ -215,7 +215,7 @@ public class RadioConfigResponseHidl extends
                     modemReducedFeatureSet1);
             if (info.error == android.hardware.radio.V1_0.RadioError.NONE) {
                 // send response
-                RadioResponse.sendMessageResponse(rr.mResult, ret);
+                RadioResponse.sendMessageResponse(rr, ret);
                 logd(rr, RILUtils.requestToString(rr.mRequest));
             } else {
                 rr.onError(info.error, ret);

@@ -29,6 +29,8 @@
 #include <GLES/gl.h>
 #include <GLES/glext.h>
 
+#include <cutils/properties.h>
+
 // Work around differences between the generated name and the actual name.
 
 #define glBlendEquation glBlendEquationOES
@@ -1950,6 +1952,41 @@ exit:
 
 /* const GLubyte * glGetString ( GLenum name ) */
 static jstring android_glGetString(JNIEnv *_env, jobject, jint name) {
+    char value[PROPERTY_VALUE_MAX] = {0};
+    property_get("ro.boot.simulation", value, "0");
+    if(strcmp(value, "1") == 0){
+        if(name == GL_VENDOR){
+            char value[PROPERTY_VALUE_MAX];
+            property_get("ro.custommade.gl_vendor", value, "");
+            if(strlen(value) != 0){
+                return _env->NewStringUTF(value);
+            }
+        }
+
+        if(name == GL_VERSION){
+            char value[PROPERTY_VALUE_MAX];
+            property_get("ro.custommade.gl_version", value, "");
+            if(strlen(value) != 0){
+                return _env->NewStringUTF(value);
+            }
+        }
+
+        if(name == GL_RENDERER){
+            char value[PROPERTY_VALUE_MAX];
+            property_get("ro.custommade.gl_renderer", value, "");
+            if(strlen(value) != 0){
+                return _env->NewStringUTF(value);
+            }
+        }
+
+        if(name == GL_EXTENSIONS){
+            char value[PROPERTY_VALUE_MAX];
+            property_get("ro.custommade.egl.extensions", value, "");
+            if(strlen(value) != 0){
+                return _env->NewStringUTF(value);
+            }
+        }
+    }
     const char* chars = (const char*) glGetString((GLenum) name);
     return _env->NewStringUTF(chars);
 }

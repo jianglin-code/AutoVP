@@ -3817,7 +3817,7 @@ public class Activity extends ContextThemeWrapper
      * @see android.view.KeyEvent
      */
     public boolean onKeyDown(int keyCode, KeyEvent event)  {
-        if("box".equals(SystemProperties.get("ro.target.product","unkonw"))){
+        if("box".equals(SystemProperties.get("ro.target.product.real","unkonw"))){
             String mstate=null;
             mstate = SystemProperties.get("sys.KeyMouse.mKeyMouseState");
 

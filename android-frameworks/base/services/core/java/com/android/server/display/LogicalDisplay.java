@@ -409,7 +409,7 @@ final class LogicalDisplay {
             mBaseDisplayInfo.roundedCorners = deviceInfo.roundedCorners;
             mBaseDisplayInfo.installOrientation = deviceInfo.installOrientation;
             
-            if(SystemProperties.get("ro.board.platform").equals("rk356x")||SystemProperties.get("ro.board.platform").equals("rk3588")) {
+            if(SystemProperties.get("ro.board.platform.real").equals("rk356x")||SystemProperties.get("ro.board.platform.real").equals("rk3588")) {
                 if (deviceInfo.type == Display.TYPE_EXTERNAL) {
                     int mPhysicalDisplayId = Integer.valueOf(deviceInfo.uniqueId.split(":")[1]);
                     String property = "persist.sys.rotation.einit-" + mPhysicalDisplayId;
@@ -616,7 +616,7 @@ final class LogicalDisplay {
             mTempDisplayRect.offset(-mDisplayOffsetY, mDisplayOffsetX);
         }
 
-        if (SystemProperties.get("ro.board.platform").equals("rk356x")||SystemProperties.get("ro.board.platform").equals("rk3588")) {
+        if (SystemProperties.get("ro.board.platform.real").equals("rk356x")||SystemProperties.get("ro.board.platform.real").equals("rk3588")) {
             if (displayDeviceInfo.type == Display.TYPE_EXTERNAL) {
                 int mPhysicalDisplayId = Integer.valueOf(device.getDisplayDeviceInfoLocked().uniqueId.split(":")[1]);
                 String property="persist.sys.rotation.efull-"+mPhysicalDisplayId;

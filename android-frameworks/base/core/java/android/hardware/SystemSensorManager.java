@@ -50,6 +50,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import android.os.SystemProperties;
+import android.hardware.input.InputSensorInfo;
+
 /**
  * Sensor manager implementation that communicates with the built-in
  * system sensors.
@@ -146,6 +149,45 @@ public class SystemSensorManager extends SensorManager {
             if (!nativeGetSensorAtIndex(mNativeInstance, sensor, index)) break;
             mFullSensorsList.add(sensor);
             mHandleToSensor.put(sensor.getHandle(), sensor);
+        }
+
+        if(SystemProperties.get("ro.boot.simulation").equals("1"))
+        {
+            for (int index = 0;; ++index)
+            {
+                String ssensor = SystemProperties.get("ro.custommade.deviceinfo.sensor"+index);
+                Log.e(TAG, "ssensor = " + ssensor);
+                if(ssensor == null) break;
+
+                String[] sssensor = ssensor.split("\\$");
+                Log.e(TAG, "sssensor.length = " + sssensor.length);
+                if(sssensor.length < 12) break;
+
+                int i = 0;
+                Sensor sensor = new Sensor(new InputSensorInfo(
+                    sssensor[i++], 
+                    sssensor[i++], 
+                    Integer.parseInt(sssensor[i++]), 
+                    0,//Integer.parseInt(sssensor[i++]), 
+                    Integer.parseInt(sssensor[i++]), 
+                    Float.parseFloat(sssensor[i++]), 
+                    Float.parseFloat(sssensor[i++]), 
+                    Float.parseFloat(sssensor[i++]), 
+                    Integer.parseInt(sssensor[i++]), 
+                    Integer.parseInt(sssensor[i++]), 
+                    Integer.parseInt(sssensor[i++]),
+                    sssensor[i++], 
+                    "",//sssensor[i++], 
+                    Integer.parseInt(sssensor[i++]), 
+                    0,//Integer.parseInt(sssensor[i++]), 
+                    0//Integer.parseInt(sssensor[i++])
+                ));
+
+                //Sensor sensor = new Sensor();
+                //if (!nativeGetSensorAtIndex(mNativeInstance, sensor, index)) break;
+                mFullSensorsList.add(sensor);
+                //mHandleToSensor.put(sensor.getHandle(), sensor);
+            }
         }
     }
 

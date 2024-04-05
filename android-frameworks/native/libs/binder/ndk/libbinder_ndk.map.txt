@@ -95,6 +95,7 @@ LIBBINDER_NDK { # introduced=29
     AServiceManager_addService; # apex llndk
     AServiceManager_checkService; # apex llndk
     AServiceManager_getService; # apex llndk
+    AServiceManager_getInitService; # apex llndk
 };
 
 LIBBINDER_NDK30 { # introduced=30

@@ -493,7 +493,7 @@ public class UiModeManager {
     public int getCurrentModeType() {
         if (mService != null) {
             try {
-                if (android.os.SystemProperties.get("ro.target.product", "unknown").equals("box")) {
+                if (android.os.SystemProperties.get("ro.target.product.real", "unknown").equals("box")) {
                     int uiMode = mService.getCurrentModeType();
                     if (AppGlobals.getPackageManager() != null) {
                         uiMode = AppGlobals.getPackageManager().getPackageUiModeType(getPackageName());

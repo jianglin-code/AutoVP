@@ -24,6 +24,10 @@
 
 #include <functional>
 
+#ifndef CELLS_MAX_CONTEXT
+#define CELLS_MAX_CONTEXT 20
+#endif
+
 // linux/binder.h defines this, but we don't want to include it here in order to
 // avoid exporting the kernel headers
 #ifndef B_PACK_CHARS

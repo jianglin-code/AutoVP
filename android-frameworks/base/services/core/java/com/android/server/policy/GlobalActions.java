@@ -92,7 +92,7 @@ class GlobalActions implements GlobalActionsProvider.GlobalActionsListener {
     public void onGlobalActionsAvailableChanged(boolean available) {
         if (DEBUG) Slog.d(TAG, "onGlobalActionsAvailableChanged " + available);
         mGlobalActionsAvailable = available;
-        if ("box".equals(SystemProperties.get("ro.target.product"))) mGlobalActionsAvailable = false;
+        if ("box".equals(SystemProperties.get("ro.target.product.real"))) mGlobalActionsAvailable = false;
         if (mShowing && !mGlobalActionsAvailable) {
             // Global actions provider died but we need to be showing global actions still, show the
             // legacy global acrions provider.

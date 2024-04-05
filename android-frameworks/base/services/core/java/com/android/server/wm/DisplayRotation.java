@@ -414,7 +414,7 @@ public class DisplayRotation {
         if (newOrientation != mCurrentAppOrientation) {
             mCurrentAppOrientation = newOrientation;
             String rot = SystemProperties.get("persist.sys.app.rotation", "middle_port");
-            if (rot.equals("force_land") && "box".equals(SystemProperties.get("ro.target.product"))) {
+            if (rot.equals("force_land") && "box".equals(SystemProperties.get("ro.target.product.real"))) {
                 android.util.Slog.d("ROCKCHIP", "updateOrientation ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE");
                 mCurrentAppOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
             }

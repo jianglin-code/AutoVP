@@ -2287,13 +2287,16 @@ class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     private void loadUISoundEffectsSettings(SQLiteStatement stmt) {
+        if(SystemProperties.get("ro.boot.vm","0").equals("1")){
+            loadSetting(stmt, Settings.System.SOUND_EFFECTS_ENABLED,"0");
+        }else{
+            loadBooleanSetting(stmt, Settings.System.SOUND_EFFECTS_ENABLED,
+                    R.bool.def_sound_effects_enabled);
+        }
         loadBooleanSetting(stmt, Settings.System.DTMF_TONE_WHEN_DIALING,
                 R.bool.def_dtmf_tones_enabled);
-        loadBooleanSetting(stmt, Settings.System.SOUND_EFFECTS_ENABLED,
-                R.bool.def_sound_effects_enabled);
         loadBooleanSetting(stmt, Settings.System.HAPTIC_FEEDBACK_ENABLED,
                 R.bool.def_haptic_feedback);
-
         loadIntegerSetting(stmt, Settings.System.LOCKSCREEN_SOUNDS_ENABLED,
             R.integer.def_lockscreen_sounds_enabled);
     }
@@ -2320,7 +2323,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
             // persistent system property instead.
             //loadSetting(stmt, Settings.Secure.ADB_ENABLED, 0);
 
-            if ("box".equals(SystemProperties.get("ro.target.product")))
+            if ("box".equals(SystemProperties.get("ro.target.product.real")))
                  loadStringSetting(stmt, Settings.Secure.DISPLAY_DENSITY_FORCED,R.string.def_display_density);
             // Allow mock locations default, based on build
             loadSetting(stmt, Settings.Secure.ALLOW_MOCK_LOCATION,

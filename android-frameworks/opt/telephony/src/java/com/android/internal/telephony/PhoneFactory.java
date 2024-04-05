@@ -60,6 +60,9 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.android.internal.telephony.custommade.SimulatedCommands;
+import android.os.SystemProperties;
+
 /**
  * {@hide}
  */
@@ -163,7 +166,11 @@ public class PhoneFactory {
 
                 int[] networkModes = new int[numPhones];
                 sPhones = new Phone[numPhones];
-                sCommandsInterfaces = new RIL[numPhones];
+                if(!SystemProperties.get("ro.boot.simulation").equals("1")){
+                    sCommandsInterfaces = new RIL[numPhones];
+                }else{
+                    sCommandsInterfaces = new SimulatedCommands[numPhones];
+                }
                 sTelephonyNetworkFactories = new TelephonyNetworkFactory[numPhones];
 
                 for (int i = 0; i < numPhones; i++) {
@@ -172,9 +179,13 @@ public class PhoneFactory {
                     networkModes[i] = RILConstants.PREFERRED_NETWORK_MODE;
 
                     Rlog.i(LOG_TAG, "Network Mode set to " + Integer.toString(networkModes[i]));
-                    sCommandsInterfaces[i] = new RIL(context,
-                            RadioAccessFamily.getRafFromNetworkType(networkModes[i]),
-                            cdmaSubscription, i);
+                    if(!SystemProperties.get("ro.boot.simulation").equals("1")){
+                        sCommandsInterfaces[i] = new RIL(context,
+                                RadioAccessFamily.getRafFromNetworkType(networkModes[i]),
+                                cdmaSubscription, i);
+                    }else{
+                        sCommandsInterfaces[i] = new SimulatedCommands();
+                    }
                 }
 
                 if (numPhones > 0) {

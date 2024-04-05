@@ -132,6 +132,7 @@ DEFINE_INTERCEPTABLE_STUB_FUNCTION(AServiceManager_checkService);
 DEFINE_INTERCEPTABLE_STUB_FUNCTION(AServiceManager_forEachDeclaredInstance);
 DEFINE_INTERCEPTABLE_STUB_FUNCTION(AServiceManager_forceLazyServicesPersist);
 DEFINE_INTERCEPTABLE_STUB_FUNCTION(AServiceManager_getService);
+DEFINE_INTERCEPTABLE_STUB_FUNCTION(AServiceManager_getInitService);
 DEFINE_INTERCEPTABLE_STUB_FUNCTION(AServiceManager_isDeclared);
 DEFINE_INTERCEPTABLE_STUB_FUNCTION(AServiceManager_isUpdatableViaApex);
 DEFINE_INTERCEPTABLE_STUB_FUNCTION(AServiceManager_reRegister);
@@ -272,6 +273,7 @@ static void __attribute__((constructor(0))) init_stub_library() {
   INIT_INTERCEPTABLE_STUB_FUNCTION("libbinder_ndk.so", AServiceManager_forEachDeclaredInstance);
   INIT_INTERCEPTABLE_STUB_FUNCTION("libbinder_ndk.so", AServiceManager_forceLazyServicesPersist);
   INIT_INTERCEPTABLE_STUB_FUNCTION("libbinder_ndk.so", AServiceManager_getService);
+  INIT_INTERCEPTABLE_STUB_FUNCTION("libbinder_ndk.so", AServiceManager_getInitService);
   INIT_INTERCEPTABLE_STUB_FUNCTION("libbinder_ndk.so", AServiceManager_isDeclared);
   INIT_INTERCEPTABLE_STUB_FUNCTION("libbinder_ndk.so", AServiceManager_isUpdatableViaApex);
   INIT_INTERCEPTABLE_STUB_FUNCTION("libbinder_ndk.so", AServiceManager_reRegister);

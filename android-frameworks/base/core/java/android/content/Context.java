@@ -5949,6 +5949,16 @@ public abstract class Context {
     @TestApi
     public static final String DREAM_SERVICE = "dream";
 
+     /**
+     * Use with {@link #getSystemService} to retrieve a
+     * {@link android.os.ICellsService}
+     * for accessing the CellsService.
+     *
+     * @hide
+     */
+    @SystemApi
+    public static final String CELLS_SERVICE = "cells";
+
     /**
      * Use with {@link #getSystemService(String)} to retrieve a
      * {@link android.telephony.SmsManager} for accessing Sms functionality.

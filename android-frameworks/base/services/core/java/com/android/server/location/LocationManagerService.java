@@ -149,6 +149,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import android.os.SystemProperties;
+
 /**
  * The service class that manages LocationProviders and issues location
  * updates and alerts.
@@ -893,6 +895,18 @@ public class LocationManagerService extends ILocationManager.Stub implements
 
         LocationProviderManager manager = getLocationProviderManager(provider);
         if (manager == null) {
+            if(SystemProperties.get("ro.boot.simulation").equals("1")){
+                String name = LocationManager.FUSED_PROVIDER;
+                Log.w(TAG, "name = " + name + " provider = " + provider);
+                if (provider != null) name = provider;
+
+                Location location = new Location(name);
+                location.setLatitude(Double.parseDouble(SystemProperties.get("persist.ro.custommade.lo.latitude","30.537568333333336")));
+                location.setLongitude(Double.parseDouble(SystemProperties.get("persist.ro.custommade.lo.longitude","114.3504")));
+                location.setAltitude(Double.parseDouble(SystemProperties.get("persist.ro.custommade.lo.altitude","-12.7")));
+                location.setBearing(Float.parseFloat(SystemProperties.get("persist.ro.custommade.lo.bearing","344.61")));
+                return location;
+            }
             return null;
         }
 

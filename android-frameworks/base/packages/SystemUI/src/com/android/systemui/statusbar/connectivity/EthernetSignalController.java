@@ -20,6 +20,7 @@ import android.net.NetworkCapabilities;
 
 import com.android.settingslib.AccessibilityContentDescriptions;
 import com.android.settingslib.SignalIcon.IconGroup;
+import com.android.settingslib.graph.SignalDrawable;
 
 import java.util.BitSet;
 
@@ -34,7 +35,7 @@ public class EthernetSignalController extends
         mCurrentState.iconGroup = mLastState.iconGroup = new IconGroup(
                 "Ethernet Icons",
                 EthernetIcons.ETHERNET_ICONS,
-                null,
+                EthernetIcons.ETHERNET_ICONS,
                 AccessibilityContentDescriptions.ETHERNET_CONNECTION_VALUES,
                 0, 0, 0, 0,
                 AccessibilityContentDescriptions.ETHERNET_CONNECTION_VALUES[0]);
@@ -51,8 +52,16 @@ public class EthernetSignalController extends
         boolean ethernetVisible = mCurrentState.connected;
         String contentDescription = getTextIfExists(getContentDescription()).toString();
         // TODO: wire up data transfer using WifiSignalPoller.
-        callback.setEthernetIndicators(new IconState(ethernetVisible, getCurrentIconId(),
-                contentDescription));
+        //callback.setEthernetIndicators(new IconState(ethernetVisible, getCurrentIconId(),
+        //        contentDescription));
+        
+        IconState statusIcon = new IconState(
+                ethernetVisible, getCurrentIconId(), contentDescription);
+        IconState qsIcon = new IconState(ethernetVisible,
+                getQsCurrentIconId(), contentDescription);
+        WifiIndicators wifiIndicators = new WifiIndicators(
+                ethernetVisible, statusIcon, qsIcon, true, true, "SW-AP", true, "SW-AP");
+        callback.setWifiIndicators(wifiIndicators);
     }
 
     @Override

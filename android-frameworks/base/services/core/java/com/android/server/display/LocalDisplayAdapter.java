@@ -666,7 +666,7 @@ final class LocalDisplayAdapter extends DisplayAdapter {
                                 com.android.internal.R.bool.config_localDisplaysMirrorContent)) {
                         mInfo.flags |= DisplayDeviceInfo.FLAG_OWN_CONTENT_ONLY;
                     }
-                    if (SystemProperties.get("ro.board.platform").equals("rk356x")||SystemProperties.get("ro.board.platform").equals("rk3588")) {
+                    if (SystemProperties.get("ro.board.platform.real").equals("rk356x")||SystemProperties.get("ro.board.platform.real").equals("rk3588")) {
                         String property="persist.sys.rotation.einit-" + mPhysicalDisplayId;
                         int rotation = SystemProperties.getInt(property, 0);
                         Slog.d(TAG, "mPhysicalDisplayId" + mPhysicalDisplayId + " set rotation " + rotation);

@@ -54,7 +54,7 @@ public class DataResponse extends IRadioDataResponse.Stub {
         RILRequest rr = mRil.processResponse(RIL.DATA_SERVICE, responseInfo);
         if (rr != null) {
             if (responseInfo.error == RadioError.NONE) {
-                RadioResponse.sendMessageResponse(rr.mResult, id);
+                RadioResponse.sendMessageResponse(rr, id);
             }
             mRil.processResponseDone(rr, responseInfo, id);
         }
@@ -86,7 +86,7 @@ public class DataResponse extends IRadioDataResponse.Stub {
             ArrayList<DataCallResponse> response =
                     RILUtils.convertHalDataCallResultList(dataCallResultList);
             if (responseInfo.error == RadioError.NONE) {
-                RadioResponse.sendMessageResponse(rr.mResult, response);
+                RadioResponse.sendMessageResponse(rr, response);
             }
             mRil.processResponseDone(rr, responseInfo, response);
         }
@@ -103,7 +103,7 @@ public class DataResponse extends IRadioDataResponse.Stub {
         if (rr != null) {
             NetworkSlicingConfig ret = RILUtils.convertHalSlicingConfig(slicingConfig);
             if (responseInfo.error == RadioError.NONE) {
-                RadioResponse.sendMessageResponse(rr.mResult, ret);
+                RadioResponse.sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -155,7 +155,7 @@ public class DataResponse extends IRadioDataResponse.Stub {
         if (rr != null) {
             DataCallResponse response = RILUtils.convertHalDataCallResult(setupDataCallResult);
             if (responseInfo.error == RadioError.NONE) {
-                RadioResponse.sendMessageResponse(rr.mResult, response);
+                RadioResponse.sendMessageResponse(rr, response);
             }
             mRil.processResponseDone(rr, responseInfo, response);
         }
@@ -192,7 +192,7 @@ public class DataResponse extends IRadioDataResponse.Stub {
                     }
                     // If responseInfo.error is NONE, response function sends the response message
                     // even if result is actually an error.
-                    RadioResponse.sendMessageResponse(rr.mResult, ret);
+                    RadioResponse.sendMessageResponse(rr, ret);
                     break;
                 case RadioError.REQUEST_NOT_SUPPORTED:
                     ret = new KeepaliveStatus(KeepaliveStatus.ERROR_UNSUPPORTED);
@@ -219,7 +219,7 @@ public class DataResponse extends IRadioDataResponse.Stub {
 
         try {
             if (responseInfo.error == RadioError.NONE) {
-                RadioResponse.sendMessageResponse(rr.mResult, null);
+                RadioResponse.sendMessageResponse(rr, null);
             } else {
                 //TODO: Error code translation
             }

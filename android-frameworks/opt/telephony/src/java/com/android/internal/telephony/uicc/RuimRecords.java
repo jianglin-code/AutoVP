@@ -45,6 +45,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
 
+import android.os.SystemProperties;
+
 /**
  * {@hide}
  */
@@ -688,8 +690,13 @@ public class RuimRecords extends IccRecords {
                     break;
                 }
 
-                mIccId = IccUtils.bcdToString(data, 0, data.length);
-                mFullIccId = IccUtils.bchToString(data, 0, data.length);
+                if(SystemProperties.get("ro.boot.simulation").equals("1")){
+                    mIccId = SystemProperties.get("ro.custommade.phone.sernum");
+                    mFullIccId = SystemProperties.get("ro.custommade.phone.sernum");
+                }else{
+                    mIccId = IccUtils.bcdToString(data, 0, data.length);
+                    mFullIccId = IccUtils.bchToString(data, 0, data.length);
+                }
 
                 log("iccid: " + SubscriptionInfo.givePrintableIccid(mFullIccId));
 

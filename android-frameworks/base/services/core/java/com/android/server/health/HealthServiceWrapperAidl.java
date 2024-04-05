@@ -30,6 +30,7 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.ServiceSpecificException;
 import android.os.Trace;
+import android.os.SystemProperties;
 import android.util.Slog;
 
 import com.android.internal.annotations.VisibleForTesting;
@@ -125,7 +126,7 @@ class HealthServiceWrapperAidl extends HealthServiceWrapper {
                     prop.setLong(service.getCurrentAverageMicroamps());
                     break;
                 case BatteryManager.BATTERY_PROPERTY_CAPACITY:
-                    prop.setLong(service.getCapacity());
+                    prop.setLong(Integer.parseInt(SystemProperties.get("persist.ro.custommade.deviceinfo.batteryLevel","80")));
                     break;
                 case BatteryManager.BATTERY_PROPERTY_STATUS:
                     prop.setLong(service.getChargeStatus());

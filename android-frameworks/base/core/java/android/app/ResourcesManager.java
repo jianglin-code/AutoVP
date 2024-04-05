@@ -651,7 +651,7 @@ public class ResourcesManager {
 
         final Configuration config = generateConfig(key);
         final DisplayMetrics displayMetrics = getDisplayMetrics(generateDisplayId(key), daj);
-        if (android.os.SystemProperties.get("ro.target.product", "unknown").equals("box")) {
+        if (android.os.SystemProperties.get("ro.target.product.real", "unknown").equals("box")) {
             config.uiMode = fitUiMode(config);
         }
         final ResourcesImpl impl = new ResourcesImpl(assets, displayMetrics, config, daj);

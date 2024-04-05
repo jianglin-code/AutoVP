@@ -292,6 +292,7 @@ constexpr const char* const kManualInterfaces[] = {
   "IAAudioClient",
   "IAAudioService",
   "VtsFuzzer",
+  "VirtualCameraService",
   nullptr,
 };
 

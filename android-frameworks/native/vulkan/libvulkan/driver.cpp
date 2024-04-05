@@ -156,7 +156,7 @@ Hal Hal::hal_;
 
 const std::array<const char*, 2> HAL_SUBNAME_KEY_PROPERTIES = {{
     "ro.hardware.vulkan",
-    "ro.board.platform",
+    "ro.board.platform.real",
 }};
 constexpr int LIB_DL_FLAGS = RTLD_LOCAL | RTLD_NOW;
 

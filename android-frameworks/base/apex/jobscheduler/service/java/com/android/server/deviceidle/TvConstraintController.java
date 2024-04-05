@@ -20,6 +20,7 @@ import android.annotation.Nullable;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Handler;
+import android.os.SystemProperties;
 
 import com.android.server.DeviceIdleInternal;
 import com.android.server.LocalServices;
@@ -44,9 +45,13 @@ public class TvConstraintController implements ConstraintController {
         mDeviceIdleService = LocalServices.getService(DeviceIdleInternal.class);
 
         final PackageManager pm = context.getPackageManager();
-        mBluetoothConstraint = pm.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH)
-                ? new BluetoothConstraint(mContext, mHandler, mDeviceIdleService)
-                : null;
+        if(SystemProperties.get("ro.boot.vm","0").equals("0")){
+            mBluetoothConstraint = pm.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH)
+                    ? new BluetoothConstraint(mContext, mHandler, mDeviceIdleService)
+                    : null;
+        }else{
+            mBluetoothConstraint = null;
+        }
     }
 
     @Override

@@ -140,7 +140,7 @@ static const char* DRIVER_SUFFIX_PROPERTY = "ro.hardware.egl";
 
 static const char* HAL_SUBNAME_KEY_PROPERTIES[2] = {
     DRIVER_SUFFIX_PROPERTY,
-    "ro.board.platform",
+    "ro.board.platform.real",
 };
 
 static bool should_unload_system_driver(egl_connection_t* cnx) {

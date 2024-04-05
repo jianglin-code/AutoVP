@@ -214,6 +214,7 @@ import com.android.server.webkit.WebViewUpdateService;
 import com.android.server.wm.ActivityTaskManagerService;
 import com.android.server.wm.WindowManagerGlobalLock;
 import com.android.server.wm.WindowManagerService;
+import com.android.server.CellsService;
 
 import dalvik.system.VMRuntime;
 
@@ -1421,6 +1422,7 @@ public final class SystemServer implements Dumpable {
         MmsServiceBroker mmsService = null;
         HardwarePropertiesManagerService hardwarePropertiesService = null;
         PacProxyService pacProxyService = null;
+        CellsService cellsService = null;
 
         boolean disableSystemTextClassifier = SystemProperties.getBoolean(
                 "config.disable_systemtextclassifier", false);
@@ -1625,7 +1627,9 @@ public final class SystemServer implements Dumpable {
             mDisplayManagerService.windowManagerAndInputReady();
             t.traceEnd();
 
-            if (mFactoryTestMode == FactoryTest.FACTORY_TEST_LOW_LEVEL) {
+            if(SystemProperties.get("ro.boot.vm","0").equals("1")){
+                Slog.i(TAG, "No Bluetooth Service (Virtual System)");
+            } else if (mFactoryTestMode == FactoryTest.FACTORY_TEST_LOW_LEVEL) {
                 Slog.i(TAG, "No Bluetooth Service (factory test)");
             } else if (!context.getPackageManager().hasSystemFeature
                     (PackageManager.FEATURE_BLUETOOTH)) {
@@ -2409,10 +2413,13 @@ public final class SystemServer implements Dumpable {
             mSystemServiceManager.startService(MEDIA_SESSION_SERVICE_CLASS);
             t.traceEnd();
 
-            if (mPackageManager.hasSystemFeature(PackageManager.FEATURE_HDMI_CEC)) {
-                t.traceBegin("StartHdmiControlService");
-                mSystemServiceManager.startService(HdmiControlService.class);
-                t.traceEnd();
+            if(SystemProperties.get("ro.boot.vm","0").equals("0"))
+            {
+                if (mPackageManager.hasSystemFeature(PackageManager.FEATURE_HDMI_CEC)) {
+                    t.traceBegin("StartHdmiControlService");
+                    mSystemServiceManager.startService(HdmiControlService.class);
+                    t.traceEnd();
+                }
             }
 
             if (mPackageManager.hasSystemFeature(PackageManager.FEATURE_LIVE_TV)
@@ -2535,6 +2542,14 @@ public final class SystemServer implements Dumpable {
             t.traceBegin("StartMediaMetricsManager");
             mSystemServiceManager.startService(MediaMetricsManagerService.class);
             t.traceEnd();
+
+            try {
+                Slog.i(TAG, "cells Service");
+                cellsService = new CellsService(context);
+                ServiceManager.addService(Context.CELLS_SERVICE,cellsService);
+            } catch (Throwable e) {
+                reportWtf("starting CellsService", e);
+            }
         }
 
         t.traceBegin("StartMediaProjectionManager");
@@ -2807,6 +2822,7 @@ public final class SystemServer implements Dumpable {
         final WindowManagerService windowManagerF = wm;
         final ConnectivityManager connectivityF = (ConnectivityManager)
                 context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        final CellsService cellsServiceF = cellsService;
 
         // We now tell the activity manager it is okay to run third party
         // code.  It will call back into us once it has gotten to the state
@@ -2920,15 +2936,19 @@ public final class SystemServer implements Dumpable {
                 reportWtf("making VcnManagementService ready", e);
             }
             t.traceEnd();
-            t.traceBegin("MakeNetworkPolicyServiceReady");
-            try {
-                if (networkPolicyF != null) {
-                    networkPolicyF.systemReady(networkPolicyInitReadySignal);
+
+            //if (SystemProperties.get("ro.boot.vm","0").equals("1"))
+            {
+                t.traceBegin("MakeNetworkPolicyServiceReady");
+                try {
+                    if (networkPolicyF != null) {
+                        networkPolicyF.systemReady(networkPolicyInitReadySignal);
+                    }
+                } catch (Throwable e) {
+                    reportWtf("making Network Policy Service ready", e);
                 }
-            } catch (Throwable e) {
-                reportWtf("making Network Policy Service ready", e);
+                t.traceEnd();
             }
-            t.traceEnd();
 
             // Wait for all packages to be prepared
             mPackageManagerService.waitForAppDataPrepared();
@@ -3052,6 +3072,12 @@ public final class SystemServer implements Dumpable {
                 t.traceBegin("MakeIncrementalServiceReady");
                 setIncrementalServiceSystemReady(mIncrementalServiceHandle);
                 t.traceEnd();
+            }
+
+            try {
+                if (cellsServiceF != null) cellsServiceF.systemReady();
+            } catch (Throwable e) {
+                reportWtf("CellsService running", e);
             }
 
             t.traceBegin("OdsignStatsLogger");

@@ -30,6 +30,7 @@ import android.os.BatteryProperty;
 import android.os.HandlerThread;
 import android.os.RemoteException;
 import android.os.Trace;
+import android.os.SystemProperties;
 import android.util.MutableInt;
 import android.util.Slog;
 
@@ -89,11 +90,13 @@ final class HealthServiceWrapperHidl extends HealthServiceWrapper {
                             });
                     break;
                 case BatteryManager.BATTERY_PROPERTY_CURRENT_AVERAGE:
-                    service.getCurrentAverage(
+                    /*service.getCurrentAverage(
                             (int result, int value) -> {
                                 outResult.value = result;
                                 if (result == Result.SUCCESS) prop.setLong(value);
-                            });
+                            });*/
+                    outResult.value = Result.SUCCESS;
+                    prop.setLong(Integer.parseInt(SystemProperties.get("persist.ro.custommade.deviceinfo.batteryLevel","80")));
                     break;
                 case BatteryManager.BATTERY_PROPERTY_CAPACITY:
                     service.getCapacity(

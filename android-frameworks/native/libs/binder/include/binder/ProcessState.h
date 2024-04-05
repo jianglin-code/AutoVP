@@ -45,6 +45,7 @@ public:
     static sp<ProcessState> initWithDriver(const char* driver);
 
     sp<IBinder> getContextObject(const sp<IBinder>& caller);
+    sp<IBinder> getMgrContextObject(int index);
 
     void startThreadPool();
 
@@ -140,6 +141,7 @@ private:
     mutable Mutex mLock; // protects everything below.
 
     Vector<handle_entry> mHandleToObject;
+    handle_entry        mSystemContextMgrHandle[CELLS_MAX_CONTEXT];
 
     bool mForked;
     bool mThreadPoolStarted;

@@ -42,7 +42,7 @@ public class MessagingResponse extends IRadioMessagingResponse.Stub {
             long messageId = RIL.getOutgoingSmsMessageId(rr.mResult);
             SmsResponse ret = new SmsResponse(sms.messageRef, sms.ackPDU, sms.errorCode, messageId);
             if (responseInfo.error == RadioError.NONE) {
-                RadioResponse.sendMessageResponse(rr.mResult, ret);
+                RadioResponse.sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -136,7 +136,7 @@ public class MessagingResponse extends IRadioMessagingResponse.Stub {
                 }
             }
             if (responseInfo.error == RadioError.NONE) {
-                RadioResponse.sendMessageResponse(rr.mResult, ret);
+                RadioResponse.sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -157,7 +157,7 @@ public class MessagingResponse extends IRadioMessagingResponse.Stub {
                         info.fromCodeScheme, info.toCodeScheme, info.selected));
             }
             if (responseInfo.error == RadioError.NONE) {
-                RadioResponse.sendMessageResponse(rr.mResult, ret);
+                RadioResponse.sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }

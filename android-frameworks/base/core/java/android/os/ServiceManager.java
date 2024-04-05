@@ -420,4 +420,28 @@ public final class ServiceManager {
         }
         return binder;
     }
+
+    @UnsupportedAppUsage
+    public static @Nullable IBinder getInitService(@Nullable String name) {
+        String v = SystemProperties.get("ro.boot.vm","0");
+        if(v.equals("0"))
+            return getService(name);
+
+        return getOtherSystemService(name,0);
+    }
+
+    @UnsupportedAppUsage
+    public static @Nullable IBinder getOtherSystemService(@Nullable String name,int index) {
+        try {
+            IServiceManager m = ServiceManagerNative.asInterface(
+                            Binder.allowBlocking(BinderInternal.getMgrContextObject(index)));
+            if(m!=null)
+                return m.getService(name);
+        } catch (RemoteException e) {
+            Log.e(TAG, "error in getOtherSystemService", e);
+            return null;
+        }
+        Log.e(TAG, "error in getOtherSystemService name=" + name);
+        return null;
+    }
 }

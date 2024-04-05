@@ -52,6 +52,7 @@ import android.os.SystemClock;
 import android.os.Trace;
 import android.os.UEventObserver;
 import android.os.UserHandle;
+import android.os.SystemProperties;
 import android.provider.Settings;
 import android.service.battery.BatteryServiceDumpProto;
 import android.sysprop.PowerProperties;
@@ -459,6 +460,8 @@ public final class BatteryService extends SystemService {
     private void processValuesLocked(boolean force) {
         boolean logOutlier = false;
         long dischargeDuration = 0;
+
+        mHealthInfo.batteryLevel = Integer.parseInt(SystemProperties.get("persist.ro.custommade.deviceinfo.batteryLevel","80"));
 
         mBatteryLevelCritical =
             mHealthInfo.batteryStatus != BatteryManager.BATTERY_STATUS_UNKNOWN

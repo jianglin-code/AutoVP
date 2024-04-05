@@ -84,7 +84,7 @@ public class NetworkResponse extends IRadioNetworkResponse.Stub {
                         RILUtils.convertHalOperatorStatus(info.status)));
             }
             if (responseInfo.error == RadioError.NONE) {
-                RadioResponse.sendMessageResponse(rr.mResult, ret);
+                RadioResponse.sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -104,7 +104,7 @@ public class NetworkResponse extends IRadioNetworkResponse.Stub {
             BarringInfo bi = new BarringInfo(RILUtils.convertHalCellIdentity(cellIdentity),
                     RILUtils.convertHalBarringInfoList(barringInfos));
             if (responseInfo.error == RadioError.NONE) {
-                RadioResponse.sendMessageResponse(rr.mResult, bi);
+                RadioResponse.sendMessageResponse(rr, bi);
                 // notify all registrants for the possible barring info change
                 mRil.mBarringInfoChangedRegistrants.notifyRegistrants(
                         new AsyncResult(null, bi, null));
@@ -132,7 +132,7 @@ public class NetworkResponse extends IRadioNetworkResponse.Stub {
         if (rr != null) {
             ArrayList<CellInfo> ret = RILUtils.convertHalCellInfoList(cellInfo);
             if (responseInfo.error == RadioError.NONE) {
-                RadioResponse.sendMessageResponse(rr.mResult, ret);
+                RadioResponse.sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -148,7 +148,7 @@ public class NetworkResponse extends IRadioNetworkResponse.Stub {
 
         if (rr != null) {
             if (responseInfo.error == RadioError.NONE) {
-                RadioResponse.sendMessageResponse(rr.mResult, dataRegResponse);
+                RadioResponse.sendMessageResponse(rr, dataRegResponse);
             }
             mRil.processResponseDone(rr, responseInfo, dataRegResponse);
         }
@@ -197,7 +197,7 @@ public class NetworkResponse extends IRadioNetworkResponse.Stub {
         if (rr != null) {
             SignalStrength ret = RILUtils.convertHalSignalStrength(signalStrength);
             if (responseInfo.error == RadioError.NONE) {
-                RadioResponse.sendMessageResponse(rr.mResult, ret);
+                RadioResponse.sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -218,7 +218,7 @@ public class NetworkResponse extends IRadioNetworkResponse.Stub {
             }
             mRil.riljLog("getSystemSelectionChannelsResponse: from AIDL: " + specifiers);
             if (responseInfo.error == RadioError.NONE) {
-                RadioResponse.sendMessageResponse(rr.mResult, specifiers);
+                RadioResponse.sendMessageResponse(rr, specifiers);
             }
             mRil.processResponseDone(rr, responseInfo, specifiers);
         }
@@ -241,7 +241,7 @@ public class NetworkResponse extends IRadioNetworkResponse.Stub {
         RILRequest rr = mRil.processResponse(RIL.NETWORK_SERVICE, responseInfo);
         if (rr != null) {
             if (responseInfo.error == RadioError.NONE) {
-                RadioResponse.sendMessageResponse(rr.mResult, voiceRegResponse);
+                RadioResponse.sendMessageResponse(rr, voiceRegResponse);
             }
             mRil.processResponseDone(rr, responseInfo, voiceRegResponse);
         }
@@ -258,7 +258,7 @@ public class NetworkResponse extends IRadioNetworkResponse.Stub {
 
         if (rr != null) {
             if (responseInfo.error == RadioError.NONE) {
-                RadioResponse.sendMessageResponse(rr.mResult, isEnabled);
+                RadioResponse.sendMessageResponse(rr, isEnabled);
             }
             mRil.processResponseDone(rr, responseInfo, isEnabled);
         }
@@ -275,7 +275,7 @@ public class NetworkResponse extends IRadioNetworkResponse.Stub {
         if (rr != null) {
             List<LinkCapacityEstimate> ret = RILUtils.convertHalLceData(lceInfo);
             if (responseInfo.error == RadioError.NONE) {
-                RadioResponse.sendMessageResponse(rr.mResult, ret);
+                RadioResponse.sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -389,7 +389,7 @@ public class NetworkResponse extends IRadioNetworkResponse.Stub {
             if (responseInfo.error == RadioError.NONE) {
                 nsr = new NetworkScanResult(NetworkScanResult.SCAN_STATUS_PARTIAL,
                         RadioError.NONE, null);
-                RadioResponse.sendMessageResponse(rr.mResult, nsr);
+                RadioResponse.sendMessageResponse(rr, nsr);
             }
             mRil.processResponseDone(rr, responseInfo, nsr);
         }
@@ -405,7 +405,7 @@ public class NetworkResponse extends IRadioNetworkResponse.Stub {
             if (responseInfo.error == RadioError.NONE) {
                 nsr = new NetworkScanResult(NetworkScanResult.SCAN_STATUS_PARTIAL,
                         RadioError.NONE, null);
-                RadioResponse.sendMessageResponse(rr.mResult, nsr);
+                RadioResponse.sendMessageResponse(rr, nsr);
             }
             mRil.processResponseDone(rr, responseInfo, nsr);
         }

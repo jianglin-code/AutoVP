@@ -68,6 +68,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import static com.android.internal.telephony.RILConstants.*;
+import android.os.SystemProperties;
+
 public class RadioResponse extends IRadioResponse.Stub {
     RIL mRil;
 
@@ -80,11 +83,65 @@ public class RadioResponse extends IRadioResponse.Stub {
      * @param msg Response message to be sent
      * @param ret Return object to be included in the response message
      */
-    static void sendMessageResponse(Message msg, Object ret) {
-        if (msg != null) {
-            AsyncResult.forMessage(msg, ret, null);
-            msg.sendToTarget();
+    static void sendMessageResponse(RILRequest rr, Object ret) {
+
+        if(rr.mResult == null)
+            return ;
+
+        if(SystemProperties.get("ro.boot.simulation").equals("1"))
+        {
+            switch(rr.mRequest)
+            {
+                case RIL_REQUEST_GET_IMEI:
+                    ret = SystemProperties.get("persist.ro.custommade.deviceinfo.imei");
+                    break;
+                case RIL_REQUEST_GET_IMEISV:
+                    ret = SystemProperties.get("ro.custommade.phone.imeisv");
+                    break;
+                case RIL_REQUEST_GET_IMSI:
+                    ret = SystemProperties.get("ro.custommade.deviceinfo.imsi");
+                    break;
+                case RIL_REQUEST_VOICE_REGISTRATION_STATE:
+                    String ret1[] = new String[15];
+                    ret1[0] = "5"; // registered roam
+                    ret1[1] = SystemProperties.get("ro.custommade.gsm.lac","0");
+                    ret1[2] = SystemProperties.get("ro.custommade.gsm.cid","0");
+                    ret1[3] = null;
+                    ret1[4] = SystemProperties.get("ro.custommade.cdma.basestationid","0");
+                    ret1[5] = SystemProperties.get("ro.custommade.cdma.latitute","0");
+                    ret1[6] = SystemProperties.get("ro.custommade.cdma.longitute","0");
+                    ret1[7] = null;
+                    ret1[8] = SystemProperties.get("ro.custommade.cdma.systemid","0");
+                    ret1[9] = SystemProperties.get("ro.custommade.cdma.networkid","0");
+                    ret1[10] = null;
+                    ret1[11] = null;
+                    ret1[12] = null;
+                    ret1[13] = null;
+                    ret1[14] = SystemProperties.get("ro.custommade.gsm.psc","0");
+                    ret = ret1;
+                    break;
+                case RIL_REQUEST_DEVICE_IDENTITY:
+                    ret = new String[] { 
+                            SystemProperties.get("persist.ro.custommade.deviceinfo.imei"), 
+                            SystemProperties.get("ro.custommade.phone.imeisv"), 
+                            SystemProperties.get("ro.custommade.phone.esn"), 
+                            SystemProperties.get("ro.custommade.phone.meid") 
+                        };
+                    break;
+                case RIL_REQUEST_CDMA_SUBSCRIPTION:
+                    ret = new String[] { 
+                            SystemProperties.get("ro.custommade.phone.msinum"), 
+                            SystemProperties.get("ro.custommade.phone.sid"), 
+                            SystemProperties.get("ro.custommade.phone.nid"), 
+                            SystemProperties.get("ro.custommade.phone.min"),
+                            SystemProperties.get("ro.custommade.phone.prlversion") 
+                        };
+                    break;
+            }
         }
+
+        AsyncResult.forMessage(rr.mResult, ret, null);
+        rr.mResult.sendToTarget();
     }
 
     /**
@@ -345,7 +402,7 @@ public class RadioResponse extends IRadioResponse.Stub {
 
         if (rr != null) {
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, voiceRegResponse);
+                sendMessageResponse(rr, voiceRegResponse);
             }
             mRil.processResponseDone(rr, responseInfo, voiceRegResponse);
         }
@@ -362,7 +419,7 @@ public class RadioResponse extends IRadioResponse.Stub {
 
         if (rr != null) {
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, voiceRegResponse);
+                sendMessageResponse(rr, voiceRegResponse);
             }
             mRil.processResponseDone(rr, responseInfo, voiceRegResponse);
         }
@@ -393,7 +450,7 @@ public class RadioResponse extends IRadioResponse.Stub {
             mRil.processResponseFallback(rr, responseInfo, voiceRegResponse);
             return;
         } else if (responseInfo.error == RadioError.NONE) {
-            sendMessageResponse(rr.mResult, voiceRegResponse);
+            sendMessageResponse(rr, voiceRegResponse);
         }
         mRil.processResponseDone(rr, responseInfo, voiceRegResponse);
     }
@@ -409,7 +466,7 @@ public class RadioResponse extends IRadioResponse.Stub {
         RILRequest rr = mRil.processResponse_1_6(responseInfo);
         if (rr != null) {
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, voiceRegResponse);
+                sendMessageResponse(rr, voiceRegResponse);
             }
             mRil.processResponseDone_1_6(rr, responseInfo, voiceRegResponse);
         }
@@ -426,7 +483,7 @@ public class RadioResponse extends IRadioResponse.Stub {
 
         if (rr != null) {
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, dataRegResponse);
+                sendMessageResponse(rr, dataRegResponse);
             }
             mRil.processResponseDone(rr, responseInfo, dataRegResponse);
         }
@@ -443,7 +500,7 @@ public class RadioResponse extends IRadioResponse.Stub {
 
         if (rr != null) {
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, dataRegResponse);
+                sendMessageResponse(rr, dataRegResponse);
             }
             mRil.processResponseDone(rr, responseInfo, dataRegResponse);
         }
@@ -460,7 +517,7 @@ public class RadioResponse extends IRadioResponse.Stub {
 
         if (rr != null) {
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, dataRegResponse);
+                sendMessageResponse(rr, dataRegResponse);
             }
             mRil.processResponseDone(rr, responseInfo, dataRegResponse);
         }
@@ -491,7 +548,7 @@ public class RadioResponse extends IRadioResponse.Stub {
             mRil.processResponseFallback(rr, responseInfo, dataRegResponse);
             return;
         } else if (responseInfo.error == RadioError.NONE) {
-            sendMessageResponse(rr.mResult, dataRegResponse);
+            sendMessageResponse(rr, dataRegResponse);
         }
         mRil.processResponseDone(rr, responseInfo, dataRegResponse);
     }
@@ -508,7 +565,7 @@ public class RadioResponse extends IRadioResponse.Stub {
 
         if (rr != null) {
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, dataRegResponse);
+                sendMessageResponse(rr, dataRegResponse);
             }
             mRil.processResponseDone_1_6(rr, responseInfo, dataRegResponse);
         }
@@ -1520,7 +1577,7 @@ public class RadioResponse extends IRadioResponse.Stub {
             IccIoResult ret = new IccIoResult(result.sw1, result.sw2,
                     TextUtils.isEmpty(result.simResponse) ? null : result.simResponse.getBytes());
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -1561,7 +1618,7 @@ public class RadioResponse extends IRadioResponse.Stub {
                 responseInfo.error = RadioError.NONE;
             }
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -1613,7 +1670,7 @@ public class RadioResponse extends IRadioResponse.Stub {
 
         if (rr != null) {
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, isEnabled);
+                sendMessageResponse(rr, isEnabled);
             }
             mRil.processResponseDone_1_6(rr, responseInfo, isEnabled);
         }
@@ -1645,12 +1702,12 @@ public class RadioResponse extends IRadioResponse.Stub {
 
             if (responseInfo.error == RadioError.NONE) {
                 ret = TelephonyManager.SET_CARRIER_RESTRICTION_SUCCESS;
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             } else if (responseInfo.error == RadioError.REQUEST_NOT_SUPPORTED) {
                 // Handle the case REQUEST_NOT_SUPPORTED as a valid response
                 responseInfo.error = RadioError.NONE;
                 ret = TelephonyManager.SET_CARRIER_RESTRICTION_NOT_SUPPORTED;
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -1667,7 +1724,7 @@ public class RadioResponse extends IRadioResponse.Stub {
 
             if (responseInfo.error == RadioError.NONE) {
                 ret = TelephonyManager.SET_CARRIER_RESTRICTION_SUCCESS;
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -1797,7 +1854,7 @@ public class RadioResponse extends IRadioResponse.Stub {
                     }
                     // If responseInfo.error is NONE, response function sends the response message
                     // even if result is actually an error.
-                    sendMessageResponse(rr.mResult, ret);
+                    sendMessageResponse(rr, ret);
                     break;
                 case RadioError.REQUEST_NOT_SUPPORTED:
                     ret = new KeepaliveStatus(KeepaliveStatus.ERROR_UNSUPPORTED);
@@ -1824,7 +1881,7 @@ public class RadioResponse extends IRadioResponse.Stub {
 
         try {
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, null);
+                sendMessageResponse(rr, null);
             } else {
                 //TODO: Error code translation
             }
@@ -1868,7 +1925,7 @@ public class RadioResponse extends IRadioResponse.Stub {
         RILRequest rr = mRil.processResponse_1_6(responseInfo);
         if (rr != null) {
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, capacity);
+                sendMessageResponse(rr, capacity);
             }
             mRil.processResponseDone_1_6(rr, responseInfo, capacity);
         }
@@ -1881,7 +1938,7 @@ public class RadioResponse extends IRadioResponse.Stub {
             IccCardStatus iccCardStatus = RILUtils.convertHalCardStatus(cardStatus);
             mRil.riljLog("responseIccCardStatus: from HIDL: " + iccCardStatus);
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, iccCardStatus);
+                sendMessageResponse(rr, iccCardStatus);
             }
             mRil.processResponseDone(rr, responseInfo, iccCardStatus);
         }
@@ -1900,7 +1957,7 @@ public class RadioResponse extends IRadioResponse.Stub {
             iccCardStatus.iccid = cardStatus.iccid;
             mRil.riljLog("responseIccCardStatus: from HIDL: " + iccCardStatus);
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, iccCardStatus);
+                sendMessageResponse(rr, iccCardStatus);
             }
             mRil.processResponseDone(rr, responseInfo, iccCardStatus);
         }
@@ -1920,7 +1977,7 @@ public class RadioResponse extends IRadioResponse.Stub {
             iccCardStatus.eid = cardStatus.eid;
             mRil.riljLog("responseIccCardStatus: from HIDL: " + iccCardStatus);
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, iccCardStatus);
+                sendMessageResponse(rr, iccCardStatus);
             }
             mRil.processResponseDone(rr, responseInfo, iccCardStatus);
         }
@@ -1934,7 +1991,7 @@ public class RadioResponse extends IRadioResponse.Stub {
             IccCardStatus iccCardStatus = RILUtils.convertHalCardStatus(cardStatus);
             mRil.riljLog("responseIccCardStatus: from HIDL: " + iccCardStatus);
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, iccCardStatus);
+                sendMessageResponse(rr, iccCardStatus);
             }
             mRil.processResponseDone(rr, responseInfo, iccCardStatus);
         }
@@ -1989,7 +2046,7 @@ public class RadioResponse extends IRadioResponse.Stub {
                 ret[i] = var.get(i);
             }
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -2005,7 +2062,7 @@ public class RadioResponse extends IRadioResponse.Stub {
                 ret[i] = var.get(i);
             }
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone_1_6(rr, responseInfo, ret);
         }
@@ -2028,7 +2085,7 @@ public class RadioResponse extends IRadioResponse.Stub {
                 ret[i] = var.get(i);
             }
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             ril.processResponseDone(rr, responseInfo, ret);
         }
@@ -2068,7 +2125,7 @@ public class RadioResponse extends IRadioResponse.Stub {
             }
 
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, dcCalls);
+                sendMessageResponse(rr, dcCalls);
             }
             mRil.processResponseDone(rr, responseInfo, dcCalls);
         }
@@ -2108,7 +2165,7 @@ public class RadioResponse extends IRadioResponse.Stub {
             }
 
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, dcCalls);
+                sendMessageResponse(rr, dcCalls);
             }
             mRil.processResponseDone(rr, responseInfo, dcCalls);
         }
@@ -2149,7 +2206,7 @@ public class RadioResponse extends IRadioResponse.Stub {
             }
 
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, dcCalls);
+                sendMessageResponse(rr, dcCalls);
             }
             mRil.processResponseDone_1_6(rr, responseInfo, dcCalls);
         }
@@ -2161,7 +2218,7 @@ public class RadioResponse extends IRadioResponse.Stub {
         if (rr != null) {
             Object ret = null;
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -2173,7 +2230,7 @@ public class RadioResponse extends IRadioResponse.Stub {
         if (rr != null) {
             Object ret = null;
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone_1_6(rr, responseInfo, ret);
         }
@@ -2192,7 +2249,7 @@ public class RadioResponse extends IRadioResponse.Stub {
         if (rr != null) {
             Object ret = null;
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             ril.processResponseDone(rr, responseInfo, ret);
         }
@@ -2203,7 +2260,7 @@ public class RadioResponse extends IRadioResponse.Stub {
 
         if (rr != null) {
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, str);
+                sendMessageResponse(rr, str);
             }
             mRil.processResponseDone(rr, responseInfo, str);
         }
@@ -2222,7 +2279,7 @@ public class RadioResponse extends IRadioResponse.Stub {
 
         if (rr != null) {
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, str);
+                sendMessageResponse(rr, str);
             }
             ril.processResponseDone(rr, responseInfo, str);
         }
@@ -2262,7 +2319,7 @@ public class RadioResponse extends IRadioResponse.Stub {
                 ret[i] = strings.get(i);
             }
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             ril.processResponseDone(rr, responseInfo, ret);
         }
@@ -2278,7 +2335,7 @@ public class RadioResponse extends IRadioResponse.Stub {
                 ret[i] = strings.get(i);
             }
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             ril.processResponseDone(rr, responseInfo, ret);
         }
@@ -2293,7 +2350,7 @@ public class RadioResponse extends IRadioResponse.Stub {
             ret.causeCode = fcInfo.causeCode;
             ret.vendorCause = fcInfo.vendorCause;
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -2307,7 +2364,7 @@ public class RadioResponse extends IRadioResponse.Stub {
         if (rr != null) {
             SignalStrength ret = RILUtils.convertHalSignalStrength(signalStrength);
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -2321,7 +2378,7 @@ public class RadioResponse extends IRadioResponse.Stub {
         if (rr != null) {
             SignalStrength ret = RILUtils.convertHalSignalStrength(signalStrength);
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -2335,7 +2392,7 @@ public class RadioResponse extends IRadioResponse.Stub {
         if (rr != null) {
             SignalStrength ret = RILUtils.convertHalSignalStrength(signalStrength);
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -2349,7 +2406,7 @@ public class RadioResponse extends IRadioResponse.Stub {
         if (rr != null) {
             SignalStrength ret = RILUtils.convertHalSignalStrength(signalStrength);
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone_1_6(rr, responseInfo, ret);
         }
@@ -2362,7 +2419,7 @@ public class RadioResponse extends IRadioResponse.Stub {
             long messageId = RIL.getOutgoingSmsMessageId(rr.mResult);
             SmsResponse ret = new SmsResponse(sms.messageRef, sms.ackPDU, sms.errorCode, messageId);
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -2376,7 +2433,7 @@ public class RadioResponse extends IRadioResponse.Stub {
             long messageId = RIL.getOutgoingSmsMessageId(rr.mResult);
             SmsResponse ret = new SmsResponse(sms.messageRef, sms.ackPDU, sms.errorCode, messageId);
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone_1_6(rr, responseInfo, ret);
         }
@@ -2389,7 +2446,7 @@ public class RadioResponse extends IRadioResponse.Stub {
         if (rr != null) {
             DataCallResponse response = RILUtils.convertHalDataCallResult(setupDataCallResult);
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, response);
+                sendMessageResponse(rr, response);
             }
             mRil.processResponseDone(rr, responseInfo, response);
         }
@@ -2403,7 +2460,7 @@ public class RadioResponse extends IRadioResponse.Stub {
         if (rr != null) {
             DataCallResponse response = RILUtils.convertHalDataCallResult(setupDataCallResult);
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, response);
+                sendMessageResponse(rr, response);
             }
             mRil.processResponseDone_1_6(rr, responseInfo, response);
         }
@@ -2416,7 +2473,7 @@ public class RadioResponse extends IRadioResponse.Stub {
         if (rr != null) {
             IccIoResult ret = new IccIoResult(result.sw1, result.sw2, result.simResponse);
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -2437,7 +2494,7 @@ public class RadioResponse extends IRadioResponse.Stub {
                 ret[i].timeSeconds = callForwardInfos.get(i).timeSeconds;
             }
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -2455,7 +2512,7 @@ public class RadioResponse extends IRadioResponse.Stub {
                         RILUtils.convertHalOperatorStatus(networkInfos.get(i).status)));
             }
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -2489,7 +2546,7 @@ public class RadioResponse extends IRadioResponse.Stub {
         if (responseInfo.error == RadioError.NONE) {
             nsr = new NetworkScanResult(
                     NetworkScanResult.SCAN_STATUS_PARTIAL, RadioError.NONE, null);
-            sendMessageResponse(rr.mResult, nsr);
+            sendMessageResponse(rr, nsr);
         }
         mRil.processResponseDone(rr, responseInfo, nsr);
     }
@@ -2502,7 +2559,7 @@ public class RadioResponse extends IRadioResponse.Stub {
             ArrayList<DataCallResponse> response =
                     RILUtils.convertHalDataCallResultList(dataCallResultList);
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, response);
+                sendMessageResponse(rr, response);
             }
             mRil.processResponseDone(rr, responseInfo, response);
         }
@@ -2516,7 +2573,7 @@ public class RadioResponse extends IRadioResponse.Stub {
             ArrayList<DataCallResponse> response =
                     RILUtils.convertHalDataCallResultList(dataCallResultList);
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, response);
+                sendMessageResponse(rr, response);
             }
             mRil.processResponseDone_1_6(rr, responseInfo, response);
         }
@@ -2546,7 +2603,7 @@ public class RadioResponse extends IRadioResponse.Stub {
                 }
             }
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -2564,7 +2621,7 @@ public class RadioResponse extends IRadioResponse.Stub {
                         configs.get(i).toCodeScheme, configs.get(i).selected));
             }
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -2612,7 +2669,7 @@ public class RadioResponse extends IRadioResponse.Stub {
                 }
             }
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -2625,7 +2682,7 @@ public class RadioResponse extends IRadioResponse.Stub {
         if (rr != null) {
             ArrayList<CellInfo> ret = RILUtils.convertHalCellInfoList((ArrayList<Object>) cellInfo);
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -2639,7 +2696,7 @@ public class RadioResponse extends IRadioResponse.Stub {
         if (rr != null) {
             ArrayList<CellInfo> ret = RILUtils.convertHalCellInfoList((ArrayList<Object>) cellInfo);
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone_1_6(rr, responseInfo, ret);
         }
@@ -2666,7 +2723,7 @@ public class RadioResponse extends IRadioResponse.Stub {
                         new int[ModemActivityInfo.getNumTxPowerLevels()], 0);
                 responseInfo.error = RadioError.NONE;
             }
-            sendMessageResponse(rr.mResult, ret);
+            sendMessageResponse(rr, ret);
             mRil.processResponseDone(rr, responseInfo, ret);
         }
     }
@@ -2678,7 +2735,7 @@ public class RadioResponse extends IRadioResponse.Stub {
         if (rr != null) {
             ArrayList<HardwareConfig> ret = RILUtils.convertHalHardwareConfigList(config);
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -2691,7 +2748,7 @@ public class RadioResponse extends IRadioResponse.Stub {
         if (rr != null) {
             RadioCapability ret = RILUtils.convertHalRadioCapability(rc, mRil);
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -2705,7 +2762,7 @@ public class RadioResponse extends IRadioResponse.Stub {
             ret.add(statusInfo.lceStatus);
             ret.add(Byte.toUnsignedInt(statusInfo.actualIntervalMs));
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -2717,7 +2774,7 @@ public class RadioResponse extends IRadioResponse.Stub {
         if (rr != null) {
             List<LinkCapacityEstimate> ret = RILUtils.convertHalLceData(lceInfo);
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -2755,7 +2812,7 @@ public class RadioResponse extends IRadioResponse.Stub {
         }
 
         if (responseInfo.error == RadioError.NONE) {
-            sendMessageResponse(rr.mResult, ret);
+            sendMessageResponse(rr, ret);
         }
         mRil.processResponseDone(rr, responseInfo, ret);
     }
@@ -2776,7 +2833,7 @@ public class RadioResponse extends IRadioResponse.Stub {
 
         if (rr != null) {
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, isEnabled);
+                sendMessageResponse(rr, isEnabled);
             }
             mRil.processResponseDone(rr, responseInfo, isEnabled);
         }
@@ -2806,7 +2863,7 @@ public class RadioResponse extends IRadioResponse.Stub {
 
         if (rr != null) {
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, enabled);
+                sendMessageResponse(rr, enabled);
             }
             mRil.processResponseDone(rr, responseInfo, enabled);
         }
@@ -2871,7 +2928,7 @@ public class RadioResponse extends IRadioResponse.Stub {
             }
             mRil.riljLog("getSystemSelectionChannelsResponse: from HIDL: " + specifiers);
             if (info.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, specifiers);
+                sendMessageResponse(rr, specifiers);
             }
             mRil.processResponseDone_1_6(rr, info, specifiers);
         }
@@ -2891,7 +2948,7 @@ public class RadioResponse extends IRadioResponse.Stub {
             BarringInfo bi = new BarringInfo(RILUtils.convertHalCellIdentity(cellIdentity),
                     RILUtils.convertHalBarringInfoList(barringInfos));
             if (responseInfo.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, bi);
+                sendMessageResponse(rr, bi);
                 // notify all registrants for the possible barring info change
                 mRil.mBarringInfoChangedRegistrants.notifyRegistrants(
                         new AsyncResult(null, bi, null));
@@ -2909,7 +2966,7 @@ public class RadioResponse extends IRadioResponse.Stub {
         RILRequest rr = mRil.processResponse_1_6(info);
         if (rr != null) {
             if (info.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, id);
+                sendMessageResponse(rr, id);
             }
             mRil.processResponseDone_1_6(rr, info, id);
         }
@@ -2947,7 +3004,7 @@ public class RadioResponse extends IRadioResponse.Stub {
         if (rr != null) {
             NetworkSlicingConfig ret = RILUtils.convertHalSlicingConfig(slicingConfig);
             if (info.error == RadioError.NONE) {
-                sendMessageResponse(rr.mResult, ret);
+                sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone_1_6(rr, info, ret);
         }

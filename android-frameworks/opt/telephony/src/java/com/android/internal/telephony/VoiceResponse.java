@@ -112,7 +112,7 @@ public class VoiceResponse extends IRadioVoiceResponse.Stub {
                 ret[i].timeSeconds = callForwardInfos[i].timeSeconds;
             }
             if (responseInfo.error == RadioError.NONE) {
-                RadioResponse.sendMessageResponse(rr.mResult, ret);
+                RadioResponse.sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -183,7 +183,7 @@ public class VoiceResponse extends IRadioVoiceResponse.Stub {
             }
 
             if (responseInfo.error == RadioError.NONE) {
-                RadioResponse.sendMessageResponse(rr.mResult, dcCalls);
+                RadioResponse.sendMessageResponse(rr, dcCalls);
             }
             mRil.processResponseDone(rr, responseInfo, dcCalls);
         }
@@ -205,7 +205,7 @@ public class VoiceResponse extends IRadioVoiceResponse.Stub {
             ret.causeCode = fcInfo.causeCode;
             ret.vendorCause = fcInfo.vendorCause;
             if (responseInfo.error == RadioError.NONE) {
-                RadioResponse.sendMessageResponse(rr.mResult, ret);
+                RadioResponse.sendMessageResponse(rr, ret);
             }
             mRil.processResponseDone(rr, responseInfo, ret);
         }
@@ -273,7 +273,7 @@ public class VoiceResponse extends IRadioVoiceResponse.Stub {
 
         if (rr != null) {
             if (responseInfo.error == RadioError.NONE) {
-                RadioResponse.sendMessageResponse(rr.mResult, enable);
+                RadioResponse.sendMessageResponse(rr, enable);
             }
             mRil.processResponseDone(rr, responseInfo, enable);
         }

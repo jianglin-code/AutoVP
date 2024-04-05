@@ -47,6 +47,7 @@
 #define BINDER_VM_SIZE ((1 * 1024 * 1024) - sysconf(_SC_PAGE_SIZE) * 2)
 #define DEFAULT_MAX_BINDER_THREADS 15
 #define DEFAULT_ENABLE_ONEWAY_SPAM_DETECTION 1
+#define INIT_SYSTEM_CONTEXT_MGR_HANDLE 100000000
 
 #ifdef __ANDROID_VNDK__
 const char* kDefaultDriver = "/dev/vndbinder";
@@ -174,6 +175,25 @@ void ProcessState::childPostFork() {
     gProcessMutex.unlock();
 }
 
+sp<IBinder> ProcessState::getMgrContextObject(int index)
+{
+    sp<IBinder> result;
+    if(index < 0 || index >= CELLS_MAX_CONTEXT)
+        return result;
+
+    sp<IBinder> context = getStrongProxyForHandle(INIT_SYSTEM_CONTEXT_MGR_HANDLE + index);
+
+    if (context == nullptr) {
+       ALOGW("Not able to get context object on %s.", mDriverName.c_str());
+    }else{
+        // The root object is special since we get it directly from the driver, it is never
+        // written by Parcell::writeStrongBinder.
+        internal::Stability::markCompilationUnit(context.get());
+    }
+
+    return context;
+}
+
 void ProcessState::startThreadPool()
 {
     AutoMutex _l(mLock);
@@ -279,6 +299,10 @@ void ProcessState::setCallRestriction(CallRestriction restriction) {
 
 ProcessState::handle_entry* ProcessState::lookupHandleLocked(int32_t handle)
 {
+    if(handle >= INIT_SYSTEM_CONTEXT_MGR_HANDLE){
+        return &mSystemContextMgrHandle[handle - INIT_SYSTEM_CONTEXT_MGR_HANDLE];
+    }
+
     const size_t N=mHandleToObject.size();
     if (N <= (size_t)handle) {
         handle_entry e;
@@ -308,7 +332,7 @@ sp<IBinder> ProcessState::getStrongProxyForHandle(int32_t handle)
         // arriving from the driver.
         IBinder* b = e->binder;
         if (b == nullptr || !e->refs->attemptIncWeak(this)) {
-            if (handle == 0) {
+            if (handle == 0 ||  handle >= INIT_SYSTEM_CONTEXT_MGR_HANDLE) {
                 // Special case for context manager...
                 // The context manager is the only object for which we create
                 // a BpBinder proxy without already holding a reference.
@@ -330,7 +354,7 @@ sp<IBinder> ProcessState::getStrongProxyForHandle(int32_t handle)
 
                 Parcel data;
                 status_t status = ipc->transact(
-                        0, IBinder::PING_TRANSACTION, data, nullptr, 0);
+                        handle, IBinder::PING_TRANSACTION, data, nullptr, 0);
 
                 ipc->setCallRestriction(originalCallRestriction);
 
@@ -509,6 +533,12 @@ ProcessState::ProcessState(const char* driver)
                     << "Using " << driver << " failed: unable to mmap transaction memory.";
             mDriverName.clear();
         }
+    }
+
+    for(int i=0; i < CELLS_MAX_CONTEXT; i++)
+    {
+        mSystemContextMgrHandle[i].binder = nullptr;
+        mSystemContextMgrHandle[i].refs = nullptr;
     }
 
 #ifdef __ANDROID__

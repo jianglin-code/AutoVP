@@ -110,6 +110,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+
+import android.os.SystemProperties;
+
 /**
  * The Settings provider contains global system-level device preferences.
  */
@@ -3734,6 +3737,14 @@ public final class Settings {
          * @return the corresponding value, or null if not present
          */
         public static String getString(ContentResolver resolver, String name) {
+            if(SystemProperties.get("ro.boot.simulation").equals("1"))
+            {
+                if(Process.myUid() >= Process.FIRST_APPLICATION_UID){
+                    if(name == Secure.ANDROID_ID){
+                        return SystemProperties.get("persist.ro.custommade.deviceinfo.androidid","c98d041dd3ee03ca");
+                    }
+                }
+            }
             return getStringForUser(resolver, name, resolver.getUserId());
         }
 
@@ -6144,6 +6155,14 @@ public final class Settings {
          * @return the corresponding value, or null if not present
          */
         public static String getString(ContentResolver resolver, String name) {
+            if(SystemProperties.get("ro.boot.simulation").equals("1"))
+            {
+                if(Process.myUid() >= Process.FIRST_APPLICATION_UID){
+                    if(name == Secure.ANDROID_ID){
+                        return SystemProperties.get("persist.ro.custommade.deviceinfo.androidid","c98d041dd3ee03ca");
+                    }
+                }
+            }
             return getStringForUser(resolver, name, resolver.getUserId());
         }
 
@@ -16049,6 +16068,14 @@ public final class Settings {
          * @return the corresponding value, or null if not present
          */
         public static String getString(ContentResolver resolver, String name) {
+            if(SystemProperties.get("ro.boot.simulation").equals("1"))
+            {
+                if(Process.myUid() >= Process.FIRST_APPLICATION_UID){
+                    if(name == Secure.ANDROID_ID){
+                        return SystemProperties.get("persist.ro.custommade.deviceinfo.androidid","c98d041dd3ee03ca");
+                    }
+                }
+            }
             return getStringForUser(resolver, name, resolver.getUserId());
         }
 

@@ -72,6 +72,7 @@ import android.os.Message;
 import android.os.SystemClock;
 import android.os.Trace;
 import android.os.VibrationEffect;
+import android.os.SystemProperties;
 import android.provider.Settings;
 import android.provider.Settings.Global;
 import android.text.InputFilter;
@@ -336,6 +337,12 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
     }
 
     public void init(int windowType, Callback callback) {
+
+        if(SystemProperties.get("ro.boot.vm","0").equals("1"))
+        {
+            return;
+        }
+
         initDialog(mActivityManager.getLockTaskModeState());
 
         mAccessibility.init();

@@ -293,7 +293,7 @@ void KeyboardInputMapper::processKey(nsecs_t when, nsecs_t readTime, bool down, 
     if (down) {
         if (keyCode == AKEYCODE_PROFILE_SWITCH) {
             char targetProduct[PROPERTY_VALUE_MAX] = "";
-            property_get("ro.target.product", targetProduct, "");
+            property_get("ro.target.product.real", targetProduct, "");
             if (strcmp(targetProduct, "box") == 0) {
                 if (strcmp(mKeyMouseState, "on")==0) {
                     property_set("sys.KeyMouse.mKeyMouseState", "off");

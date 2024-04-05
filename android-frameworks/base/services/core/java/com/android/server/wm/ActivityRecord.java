@@ -6651,7 +6651,7 @@ final class ActivityRecord extends WindowToken implements WindowManagerService.A
     /** Called when the windows associated app window container are drawn. */
     private void onWindowsDrawn(long timestampNs) {
         //Launcher is drawn completed,box can exit bootanim
-        if ("box".equals(SystemProperties.get("ro.target.product"))){
+        if ("box".equals(SystemProperties.get("ro.target.product.real"))){
             if(shortComponentName!=null && !shortComponentName.contains(".FallbackHome")
                 && !"1".equals(SystemProperties.get("service.bootanim.exit"))){
                     stopBootanim();

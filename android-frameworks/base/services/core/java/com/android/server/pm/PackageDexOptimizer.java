@@ -496,7 +496,7 @@ public class PackageDexOptimizer {
         }
 
         if (pkg.getPackageName().equals("android.security.cts") &&
-            "atv".equals(SystemProperties.get("ro.target.product","unknown")) &&
+            "atv".equals(SystemProperties.get("ro.target.product.real","unknown")) &&
             "true".equals(SystemProperties.get("cts_gts.status", "false"))) {
             // disable com.google.android.apps.mediashell
             try {

@@ -179,6 +179,9 @@ public class BinderInternal {
     @UnsupportedAppUsage
     public static final native IBinder getContextObject();
 
+    @UnsupportedAppUsage
+    public static final native IBinder getMgrContextObject(int index);
+
     /**
      * Special for system process to not allow incoming calls to run at
      * background scheduling priority.

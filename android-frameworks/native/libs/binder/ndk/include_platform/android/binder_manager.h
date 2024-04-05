@@ -71,6 +71,9 @@ __attribute__((warn_unused_result)) AIBinder* AServiceManager_checkService(const
 __attribute__((warn_unused_result)) AIBinder* AServiceManager_getService(const char* instance)
         __INTRODUCED_IN(29);
 
+__attribute__((warn_unused_result)) AIBinder* AServiceManager_getInitService(const char* instance)
+        __INTRODUCED_IN(29);
+
 /**
  * Registers a lazy service with the default service manager under the 'instance' name.
  * Does not take ownership of binder.

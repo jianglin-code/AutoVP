@@ -3757,7 +3757,7 @@ public class WindowManagerService extends IWindowManager.Stub
             }
 
         //box:skip FallbackHome to fix 2-3s black screen before launcher.
-        if (!"box".equals(SystemProperties.get("ro.target.product"))) {
+        if (!"box".equals(SystemProperties.get("ro.target.product.real"))) {
             if (!mBootAnimationStopped) {
                 Trace.asyncTraceBegin(TRACE_TAG_WINDOW_MANAGER, "Stop bootanim", 0);
                 // stop boot animation

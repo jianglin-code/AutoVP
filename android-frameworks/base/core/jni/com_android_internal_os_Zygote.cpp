@@ -323,7 +323,7 @@ static std::array<UsapTableEntry, USAP_POOL_SIZE_MAX_LIMIT> gUsapTable;
 /**
  * The list of open zygote file descriptors.
  */
-static FileDescriptorTable* gOpenFdTable = nullptr;
+//static FileDescriptorTable* gOpenFdTable = nullptr;
 
 // Must match values in com.android.internal.os.Zygote.
 // The values should be consistent with IVold.aidl
@@ -2249,11 +2249,11 @@ pid_t zygote::ForkCommon(JNIEnv* env, bool is_system_server,
   // files are not expected, and will be disallowed in the future.  Currently
   // they are allowed if they pass the same checks as in the
   // FileDescriptorTable::Create() above.
-  if (gOpenFdTable == nullptr) {
-    gOpenFdTable = FileDescriptorTable::Create(fds_to_ignore, fail_fn);
-  } else {
-    gOpenFdTable->Restat(fds_to_ignore, fail_fn);
-  }
+  //if (gOpenFdTable == nullptr) {
+    //gOpenFdTable = FileDescriptorTable::Create(fds_to_ignore, fail_fn);
+  //} else {
+    //gOpenFdTable->Restat(fds_to_ignore, fail_fn);
+  //}
 
   android_fdsan_error_level fdsan_error_level = android_fdsan_get_error_level();
 
@@ -2286,7 +2286,7 @@ pid_t zygote::ForkCommon(JNIEnv* env, bool is_system_server,
 
     // Re-open all remaining open file descriptors so that they aren't shared
     // with the zygote across a fork.
-    gOpenFdTable->ReopenOrDetach(fail_fn);
+    //gOpenFdTable->ReopenOrDetach(fail_fn);
 
     // Turn fdsan back on.
     android_fdsan_set_error_level(fdsan_error_level);

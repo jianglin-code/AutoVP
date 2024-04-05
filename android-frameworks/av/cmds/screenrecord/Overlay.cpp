@@ -43,7 +43,7 @@ const char* Overlay::kPropertyNames[] = {
         // and ro.build.version.release
         "ro.product.manufacturer",
         "ro.product.model",
-        "ro.board.platform",
+        "ro.board.platform.real",
         "ro.revision",
         "dalvik.vm.heapgrowthlimit",
         "dalvik.vm.heapsize",

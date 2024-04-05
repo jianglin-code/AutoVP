@@ -5002,6 +5002,24 @@ package android.app {
     field @NonNull public static final android.os.Parcelable.Creator<android.app.BackgroundServiceStartNotAllowedException> CREATOR;
   }
 
+  public class CellsPrivateServiceMgr {
+    ctor public CellsPrivateServiceMgr(@NonNull android.content.Context, @NonNull android.os.IBinder);
+    ctor public CellsPrivateServiceMgr(@NonNull android.content.Context);
+    method public int downloadCellsVm(@Nullable String);
+    method public int getCurrentSystem();
+    method public int sendCellsVm(@Nullable String, @Nullable String);
+    method public void sendCurrentSystemBroadcastAsUser(@Nullable android.content.Intent, @Nullable android.os.UserHandle, @Nullable String, boolean);
+    method public void sendOtherSystemBroadcastAsUser(@Nullable android.content.Intent, @Nullable android.os.UserHandle, @Nullable String, boolean, int);
+    method public void sendOtherSystemsBroadcastAsUser(@Nullable android.content.Intent, @Nullable android.os.UserHandle, @Nullable String, boolean);
+    method public int startCellsVm(@Nullable String);
+    method public int stopCellsVm(@Nullable String);
+    method public int switchCellsVm(@Nullable String);
+    method public int tarCellsVm(@Nullable String);
+    method public int untarCellsVm(@Nullable String);
+    method public int uploadCellsVm(@Nullable String);
+    method public int vmSystemReady();
+  }
+
   public class DatePickerDialog extends android.app.AlertDialog implements android.widget.DatePicker.OnDateChangedListener android.content.DialogInterface.OnClickListener {
     ctor public DatePickerDialog(@NonNull android.content.Context);
     ctor public DatePickerDialog(@NonNull android.content.Context, @StyleRes int);

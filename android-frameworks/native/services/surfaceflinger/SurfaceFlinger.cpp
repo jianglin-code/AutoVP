@@ -4918,6 +4918,12 @@ void SurfaceFlinger::initializeDisplays() {
 }
 
 void SurfaceFlinger::setPowerModeInternal(const sp<DisplayDevice>& display, hal::PowerMode mode) {
+    char value[PROPERTY_VALUE_MAX];
+    property_get("ro.boot.vm", value, "0");
+    if (strcmp(value, "1") == 0) {
+        ALOGE("%s: VM display:%s mode:%d", __func__, display->getDisplayName().c_str(), mode);
+        return;
+    }
     if (display->isVirtual()) {
         ALOGE("%s: Invalid operation on virtual display", __func__);
         return;

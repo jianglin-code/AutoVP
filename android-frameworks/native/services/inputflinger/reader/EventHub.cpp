@@ -2071,7 +2071,7 @@ void EventHub::openDeviceLocked(const std::string& devicePath) {
 
         // for infrare simulate mouse.
         char targetProduct[PROPERTY_VALUE_MAX] = "";
-        property_get("ro.target.product", targetProduct, "");
+        property_get("ro.target.product.real", targetProduct, "");
         if (strcmp(targetProduct, "box") == 0) {
             device->classes |= InputDeviceClass::INPUT_DEVICE_CLASS_KEYMOUSE;
         }

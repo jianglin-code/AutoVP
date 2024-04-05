@@ -2000,7 +2000,12 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         mHasFeatureWatch = mPackageManager.hasSystemFeature(FEATURE_WATCH);
         mHasFeatureLeanback = mPackageManager.hasSystemFeature(FEATURE_LEANBACK);
         mHasFeatureAuto = mPackageManager.hasSystemFeature(FEATURE_AUTOMOTIVE);
-        mHasFeatureHdmiCec = mPackageManager.hasSystemFeature(FEATURE_HDMI_CEC);
+
+        if(SystemProperties.get("ro.boot.vm","0").equals("0"))
+            mHasFeatureHdmiCec = mPackageManager.hasSystemFeature(FEATURE_HDMI_CEC);
+        else
+            mHasFeatureHdmiCec = false;
+
         mAccessibilityShortcutController =
                 new AccessibilityShortcutController(mContext, new Handler(), mCurrentUserId);
         mLogger = new MetricsLogger();
@@ -2859,7 +2864,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
 
         //infrare simulate mouse
-        boolean isBox = "box".equals(SystemProperties.get("ro.target.product"));
+        boolean isBox = "box".equals(SystemProperties.get("ro.target.product.real"));
         if (isBox) {
             mstate = SystemProperties.get("sys.KeyMouse.mKeyMouseState");
             if (mstate.equals("on") && ((keyCode == KeyEvent.KEYCODE_SYSTEM_NAVIGATION_LEFT)
@@ -3936,7 +3941,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
         // Basic policy based on interactive state.
         int result;
-	boolean isBox = "box".equals(SystemProperties.get("ro.target.product"));
+	boolean isBox = "box".equals(SystemProperties.get("ro.target.product.real"));
         if (interactive || (isInjected && !isWakeKey)) {
             // When the device is interactive or the key is injected pass the
             // key to the application.

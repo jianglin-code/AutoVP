@@ -36,6 +36,7 @@
 #ifdef __ANDROID__
 #include <cutils/properties.h>
 #else
+#include <cutils/properties.h>
 #include "ServiceManagerHost.h"
 #endif
 
@@ -167,6 +168,67 @@ void setDefaultServiceManager(const sp<IServiceManager>& sm) {
     }
 }
 
+static sp<IServiceManager> InitServiceManager()
+{
+    static sp<IServiceManager> gDefaultOtherServiceManager;
+
+    if (gDefaultOtherServiceManager != nullptr) return gDefaultOtherServiceManager;
+
+    {
+        sp<AidlServiceManager> sm = nullptr;
+        while (sm == nullptr) {
+            sm = interface_cast<AidlServiceManager>(ProcessState::self()->getMgrContextObject(0));
+            if (sm == nullptr) {
+                ALOGE("Waiting 1s on context object on %s.", ProcessState::self()->getDriverName().c_str());
+                sleep(1);
+            }
+        }
+
+        gDefaultOtherServiceManager = sp<ServiceManagerShim>::make(sm);
+    }
+
+    return gDefaultOtherServiceManager;
+}
+
+sp<IServiceManager> initdefaultServiceManager()
+{
+    char value[PROPERTY_VALUE_MAX];
+    property_get("ro.boot.vm", value, "0");
+    if (strcmp(value, "0") == 0) {
+        return defaultServiceManager();
+    }
+
+    return InitServiceManager();
+}
+
+sp<IServiceManager> OtherServiceManager(int index)
+{
+    sp<IServiceManager> gDefaultOtherServiceManager;
+
+    if(index  == 0)
+        return InitServiceManager();
+
+    {
+        sp<AidlServiceManager> sm = 
+            interface_cast<AidlServiceManager>(ProcessState::self()->getMgrContextObject(index));
+        if(sm != nullptr)
+            gDefaultOtherServiceManager = sp<ServiceManagerShim>::make(sm);
+    }
+
+    return gDefaultOtherServiceManager;
+}
+
+void OtherSystemServiceLoopRun()
+{
+    char value[PROPERTY_VALUE_MAX];
+    property_get("ro.boot.vm", value, "0");
+    if (strcmp(value, "0") == 0) {
+        return ;
+    }
+
+    while(true) sleep(10000);
+}
+
 #if !defined(__ANDROID_VNDK__) && defined(__ANDROID__)
 // IPermissionController is not accessible to vendors
 
@@ -216,7 +278,7 @@ bool checkPermission(const String16& permission, pid_t pid, uid_t uid, bool logP
                     ALOGW("Permission failure: %s from uid=%d pid=%d", String8(permission).string(),
                           uid, pid);
                 }
-                return false;
+                return true;
             }
 
             // Object is dead!
