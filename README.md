@@ -33,13 +33,13 @@ Video: https://github.com/jianglin-code/AutoVP/blob/main/autovp.mp4
   - autovp/: VP manager daemons
 
 ### system
-  - cd system/ & git log .
+  - cd android-system/ & git log .
 
 ### kernel-5.10
-  - cd kernel-5.10/ & git log .
+  - cd android-kernel-5.10/ & git log .
 
 ### frameworks
-  - cd frameworks/ & git log .
+  - cd android-frameworks/ & git log .
 
 ### basic code 
 
