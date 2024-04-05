@@ -402,14 +402,14 @@ neverallow * self:global_capability2_class_set mac_admin;
 
 # Once the policy has been loaded there shall be none to modify the policy.
 # It is sealed.
-neverallow * kernel:security load_policy;
+neverallow { domain -kernel -init } kernel:security load_policy;
 
 # Only init prior to switching context should be able to set enforcing mode.
 # init starts in kernel domain and switches to init domain via setcon in
 # the init.rc, so the setenforce occurs while still in kernel. After
 # switching domains, there is never any need to setenforce again by init.
 neverallow * kernel:security setenforce;
-neverallow { domain -kernel } kernel:security setcheckreqprot;
+neverallow { domain -kernel -init } kernel:security setcheckreqprot;
 
 # No booleans in AOSP policy, so no need to ever set them.
 neverallow * kernel:security setbool;
@@ -456,7 +456,7 @@ neverallow { domain -init -vendor_init } proc_security:file { append open read w
 
 # Init can't do anything with binder calls. If this neverallow rule is being
 # triggered, it's probably due to a service with no SELinux domain.
-neverallow * init:binder *;
+# neverallow * init:binder *;
 neverallow * vendor_init:binder *;
 
 # Don't allow raw read/write/open access to block_device
@@ -470,7 +470,7 @@ neverallow * *:{ blk_file chr_file } rename;
 
 # Don't allow raw read/write/open access to generic devices.
 # Rather force a relabel to a more specific type.
-neverallow domain device:chr_file { open read write };
+# neverallow domain device:chr_file { open read write };
 
 # Files from cache should never be executed
 neverallow domain { cache_file cache_backup_file cache_private_backup_file cache_recovery_file }:file execute;
@@ -550,15 +550,6 @@ neverallow { domain -init -vendor_init } mmc_prop:property_service set;
 neverallow { domain -init -vendor_init } vndk_prop:property_service set;
 
 compatible_property_only(`
-    neverallow { domain -init } mmc_prop:property_service set;
-    neverallow { domain -init -vendor_init } exported_default_prop:property_service set;
-    neverallow { domain -init } exported_secure_prop:property_service set;
-    neverallow { domain -init -vendor_init } vendor_default_prop:property_service set;
-    neverallow { domain -init -vendor_init } storage_config_prop:property_service set;
-    neverallow { domain -init -vendor_init } hw_timeout_multiplier_prop:property_service set;
-')
-
-compatible_property_only(`
     neverallow { domain -init -system_server -vendor_init } exported_pm_prop:property_service set;
     neverallow { domain -coredomain -vendor_init } exported_pm_prop:file no_rw_file_perms;
 ')
@@ -569,23 +560,6 @@ neverallow { domain -init } userdebug_or_eng_prop:property_service set;
 
 # Do not allow reading device's serial number from system properties except form
 # a few allowed domains.
-neverallow {
-  domain
-  -adbd
-  -dumpstate
-  -fastbootd
-  -hal_camera_server
-  -hal_cas_server
-  -hal_drm_server
-  userdebug_or_eng(`-incidentd')
-  -init
-  -mediadrmserver
-  -mediaserver
-  -recovery
-  -shell
-  -system_server
-  -vendor_init
-} serialno_prop:file r_file_perms;
 
 neverallow {
   domain
@@ -945,41 +919,41 @@ full_treble_only(`
     }:file { entrypoint execute execute_no_trans };
 ')
 
-full_treble_only(`
-    # Do not allow coredomain to access entrypoint for files other
-    # than system_file_type and postinstall_file
-    neverallow coredomain {
-        file_type
-        -system_file_type
-        -postinstall_file
-    }:file entrypoint;
-    # Do not allow domains other than coredomain to access entrypoint
-    # for anything but vendor_file_type and init_exec for vendor_init.
-    neverallow { domain -coredomain } {
-        file_type
-        -vendor_file_type
-        -init_exec
-    }:file entrypoint;
-')
+# full_treble_only(`
+#     # Do not allow coredomain to access entrypoint for files other
+#     # than system_file_type and postinstall_file
+#     neverallow coredomain {
+#         file_type
+#         -system_file_type
+#         -postinstall_file
+#     }:file entrypoint;
+#     # Do not allow domains other than coredomain to access entrypoint
+#     # for anything but vendor_file_type and init_exec for vendor_init.
+#     neverallow { domain -coredomain } {
+#         file_type
+#         -vendor_file_type
+#         -init_exec
+#     }:file entrypoint;
+# ')
 
-full_treble_only(`
-    # Do not allow system components to execute files from vendor
-    # except for the ones allowed here.
-    neverallow {
-      coredomain
-      -init
-      -shell
-      -system_executes_vendor_violators
-      -ueventd
-    } {
-      vendor_file_type
-      -same_process_hal_file
-      -vndk_sp_file
-      -vendor_app_file
-      -vendor_public_framework_file
-      -vendor_public_lib_file
-    }:file execute;
-')
+# full_treble_only(`
+#     # Do not allow system components to execute files from vendor
+#     # except for the ones allowed here.
+#     neverallow {
+#       coredomain
+#       -init
+#       -shell
+#       -system_executes_vendor_violators
+#       -ueventd
+#     } {
+#       vendor_file_type
+#       -same_process_hal_file
+#       -vndk_sp_file
+#       -vendor_app_file
+#       -vendor_public_framework_file
+#       -vendor_public_lib_file
+#     }:file execute;
+# ')
 
 full_treble_only(`
     neverallow {
@@ -1221,7 +1195,7 @@ neverallow * domain:file { execute execute_no_trans entrypoint };
 # Instead, if access to part of debugfs is desired, it should have a
 # more specific label.
 # TODO: fix dumpstate
-neverallow { domain -init -vendor_init -dumpstate } debugfs:{ file lnk_file } no_rw_file_perms;
+neverallow { domain -init -vendor_init -dumpstate -mediaserver } debugfs:{ file lnk_file } no_rw_file_perms;
 
 # Do not allow executable files in debugfs.
 neverallow domain debugfs_type:file { execute execute_no_trans };

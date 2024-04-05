@@ -760,6 +760,7 @@ ro.boot.bootloader         u:object_r:bootloader_prop:s0 exact string
 ro.boot.boottime           u:object_r:bootloader_prop:s0 exact string
 ro.boot.console            u:object_r:bootloader_prop:s0 exact string
 ro.boot.hardware           u:object_r:bootloader_prop:s0 exact string
+ro.boot.hardware.real           u:object_r:bootloader_prop:s0 exact string
 ro.boot.hardware.color     u:object_r:bootloader_prop:s0 exact string
 ro.boot.hardware.sku       u:object_r:bootloader_prop:s0 exact string
 ro.boot.keymaster          u:object_r:bootloader_prop:s0 exact string
@@ -780,6 +781,7 @@ ro.baseband   u:object_r:bootloader_prop:s0 exact string
 ro.bootloader u:object_r:bootloader_prop:s0 exact string
 ro.bootmode   u:object_r:bootloader_prop:s0 exact string
 ro.hardware   u:object_r:bootloader_prop:s0 exact string
+ro.hardware.real   u:object_r:bootloader_prop:s0 exact string
 ro.revision   u:object_r:bootloader_prop:s0 exact string
 
 ro.boot.dynamic_partitions          u:object_r:exported_default_prop:s0 exact string
@@ -1032,6 +1034,7 @@ ro.bionic.arch            u:object_r:cpu_variant_prop:s0 exact string
 ro.bionic.cpu_variant     u:object_r:cpu_variant_prop:s0 exact string
 
 ro.board.platform u:object_r:exported_default_prop:s0 exact string
+ro.board.platform.real u:object_r:exported_default_prop:s0 exact string
 
 ro.boot.fake_battery         u:object_r:exported_default_prop:s0 exact int
 ro.boot.fstab_suffix         u:object_r:exported_default_prop:s0 exact string

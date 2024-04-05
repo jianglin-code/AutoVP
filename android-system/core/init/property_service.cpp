@@ -48,6 +48,10 @@
 #include <thread>
 #include <vector>
 
+#include <iostream>
+#include <fstream>
+
+
 #include <InitProperties.sysprop.h>
 #include <android-base/chrono_utils.h>
 #include <android-base/file.h>
@@ -77,6 +81,7 @@
 using namespace std::literals;
 
 using android::base::GetProperty;
+using android::base::SetProperty;
 using android::base::ParseInt;
 using android::base::ReadFileToString;
 using android::base::Split;
@@ -1051,11 +1056,304 @@ static void property_initialize_ro_vendor_api_level() {
     }
 }
 
+std::string ReplaceStringInStd(std::string strOrigin, std::string strToReplace, std::string strNewChar)
+{
+    std::string strFinal = strOrigin;
+    if (strFinal.empty())
+    {
+        return strFinal;
+    }
+ 
+    if (strNewChar.empty())
+    {
+        size_t pos = std::string::npos;
+ 
+        // Search for the substring in string in a loop untill nothing is found
+        while ((pos = strFinal.find(strToReplace)) != std::string::npos)
+        {
+            // If found then erase it from string
+            strFinal.erase(pos, strToReplace.length());
+        }
+    }
+    else
+    {
+        for (std::string::size_type pos(0); pos != std::string::npos; pos += strNewChar.length())
+        {
+            pos = strFinal.find(strToReplace, pos);
+            if (pos != std::string::npos)
+                strFinal.replace(pos, strToReplace.length(), strNewChar);
+            else
+                break;
+        }
+    }
+    return   strFinal;
+}
+
+static void reload_custommade_props(void)
+{
+    std::string error;
+    if(access("/.cell", F_OK) == 0){
+        PropertySet("ro.boot.simulation", "1", &error);
+    }
+
+    std::string value = android::base::GetProperty("ro.custommade.prop.ro.build.id", "");
+    if(value != ""){
+        PropertySet("ro.build.id", value, &error);
+    }
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.build.display.id", "");
+    if(value != ""){
+        PropertySet("ro.build.display.id", value, &error);
+    }
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.build.date", "");
+    if(value != ""){
+        PropertySet("ro.build.date", value, &error);
+    }
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.build.date.utc", "");
+    if(value != ""){
+        PropertySet("ro.build.date.utc", value, &error);
+    }
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.build.user", "");
+    if(value != ""){
+        PropertySet("ro.build.user", value, &error);
+    }
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.build.host", "");
+    if(value != ""){
+        PropertySet("ro.build.host", value, &error);
+    }
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.build.flavor", "");
+    if(value != ""){
+        PropertySet("ro.build.flavor", value, &error);
+    }
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.product.model", "");
+    if(value != ""){
+        PropertySet("ro.product.model", value, &error);
+    }
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.product.brand", "");
+    if(value != ""){
+        PropertySet("ro.product.brand", value, &error);
+    }
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.product.name", "");
+    if(value != ""){
+        PropertySet("ro.product.name", value, &error);
+    }
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.product.device", "");
+    if(value != ""){
+        PropertySet("ro.product.device", value, &error);
+    }
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.product.manufacturer", "");
+    if(value != ""){
+        PropertySet("ro.product.manufacturer", value, &error);
+    }
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.product.vendor.brand", "");
+    if(value != ""){
+        PropertySet("ro.product.vendor.brand", value, &error);
+    }
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.product.vendor.device", "");
+    if(value != ""){
+        PropertySet("ro.product.vendor.device", value, &error);
+    }
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.product.vendor.manufacturer", "");
+    if(value != ""){
+        PropertySet("ro.product.vendor.manufacturer", value, &error);
+    }
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.product.vendor.model", "");
+    if(value != ""){
+        PropertySet("ro.product.vendor.model", value, &error);
+    }
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.product.vendor.name", "");
+    if(value != ""){
+        PropertySet("ro.product.vendor.name", value, &error);
+    }
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.build.product", "");
+    if(value != ""){
+        PropertySet("ro.build.product", value, &error);
+    }
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.build.description", "");
+    if(value != ""){
+        PropertySet("ro.build.description", value, &error);
+    }
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.build.fingerprint", "");
+    if(value != ""){
+        PropertySet("ro.build.fingerprint", value, &error);
+    }
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.product.board", "");
+    if(value != ""){
+        PropertySet("ro.product.board", value, &error);
+    }
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.hardware", "");
+    if(value != ""){
+        PropertySet("ro.hardware", value, &error);
+        PropertySet("ro.boot.hardware", value, &error);
+    }
+    PropertySet("ro.hardware.real", "rk30board", &error);
+    PropertySet("ro.boot.hardware.real", "rk30board", &error);
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.board.boardid", "");
+    if(value != ""){
+        PropertySet("ro.board.boardid", value, &error);
+    }
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.board.platform", "");
+    if(value != ""){
+        PropertySet("ro.board.platform", value, &error);
+    }
+    PropertySet("ro.board.platform.real", "rk3528", &error);
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.product.cpu.abi", "");
+    if(value != ""){
+        PropertySet("ro.product.cpu.abi", value, &error);
+    }
+    PropertySet("ro.product.cpu.abi.real", "arm64-v8a", &error);
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.product.cpu.abilist", "");
+    if(value != ""){
+        PropertySet("ro.product.cpu.abilist", value, &error);
+        PropertySet("ro.vendor.product.cpu.abilist", value, &error);
+    }
+    PropertySet("ro.product.cpu.abilist.real", "arm64-v8a,armeabi-v7a,armeabi", &error);
+    PropertySet("ro.vendor.product.cpu.abilist.real", "arm64-v8a,armeabi-v7a,armeabi", &error);
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.product.cpu.abilist32", "");
+    if(value != ""){
+        PropertySet("ro.product.cpu.abilist32", value, &error);
+        PropertySet("ro.vendor.product.cpu.abilist32", value, &error);
+    }
+    PropertySet("ro.product.cpu.abilist32.real", "armeabi-v7a,armeabi", &error);
+    PropertySet("ro.vendor.product.cpu.abilist32.real", "armeabi-v7a,armeabi", &error);
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.product.cpu.abilist64", "");
+    if(value != ""){
+        PropertySet("ro.product.cpu.abilist64", value, &error);
+        PropertySet("ro.vendor.product.cpu.abilist64", value, &error);
+    }
+    PropertySet("ro.product.cpu.abilist64.real", "arm64-v8a", &error);
+    PropertySet("ro.vendor.product.cpu.abilist64.real", "arm64-v8a", &error);
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.product.fingerprintName", "");
+    if(value != ""){
+        PropertySet("ro.product.fingerprintName", value, &error);
+    }
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.product.hardwareversion", "");
+    if(value != ""){
+        PropertySet("ro.product.hardwareversion", value, &error);
+    }
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.boot.hardware.ddr", "");
+    if(value != ""){
+        PropertySet("ro.boot.hardware.ddr", value, &error);
+    }
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.boot.hardware.emmc", "");
+    if(value != ""){
+        PropertySet("ro.boot.hardware.emmc", value, &error);
+    }
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.product.platform", "");
+    if(value != ""){
+        PropertySet("ro.product.platform", value, &error);
+        PropertySet("ro.product.vendor.platform", value, &error);
+    }
+    PropertySet("ro.product.platform.real", "", &error);
+    PropertySet("ro.product.vendor.platform.real", "", &error);
+
+    value = android::base::GetProperty("ro.custommade.cpu.cpuinfo", "");
+    if(value != ""){
+        int fd = open("/proc/cpuinfo", O_RDWR);
+        if (fd != -1) {
+            LOG(ERROR) << "value = " << value;
+            std::string strFinal1 = ReplaceStringInStd(value, "\x5ct", "\t");
+            LOG(ERROR) << "strFinal1 = " << strFinal1;
+            std::string strFinal2 = ReplaceStringInStd(strFinal1, "\x5cn", "\n");
+            LOG(ERROR) << "strFinal2 = " << strFinal2;
+            write(fd, strFinal2.c_str(), strFinal2.size());
+            close(fd);
+        }
+    }
+
+    value = android::base::GetProperty("ro.custommade.kernel_version", "");
+    if(value == ""){
+        value = android::base::GetProperty("ro.custommade.kernel_uname", "");
+    }
+    if(value != ""){
+        int fd = open("/proc/version", O_RDWR);
+        if (fd != -1) {
+            LOG(ERROR) << "value = " << value;
+            std::string strFinal1 = ReplaceStringInStd(value, "\x5ct", "\t");
+            LOG(ERROR) << "strFinal1 = " << strFinal1;
+            std::string strFinal2 = ReplaceStringInStd(strFinal1, "\x5cn", "\n");
+            LOG(ERROR) << "strFinal2 = " << strFinal2;
+            //std::string strFinal3 = ReplaceStringInStd(strFinal2, "\00", "");
+            //LOG(ERROR) << "strFinal3 = " << strFinal3;
+            write(fd, strFinal2.c_str(), strFinal2.size());
+            close(fd);
+        }
+    }
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.sf.lcd_density", "");
+    if(value != ""){
+        //PropertySet("ro.sf.lcd_density", value, &error);
+    }
+    PropertySet("ro.sf.lcd_density.real", "280", &error);
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.build.version.sdk", "");
+    if(value != ""){
+        //int sdk = atoi(value.c_str());
+        //if(sdk >= 27 && sdk <= 28)
+        //    PropertySet("ro.build.version.sdk", value, &error);
+    }
+    PropertySet("ro.build.version.sdk.real", "32", &error);
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.build.version.release", "");
+    if(value != ""){
+        //PropertySet("ro.build.version.release", value, &error);
+    }
+    PropertySet("ro.build.version.release.real", "12", &error);
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.config.cpu_info_display", "");
+    if(value != ""){
+        PropertySet("ro.config.cpu_info_display", value, &error);
+    }
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.build.characteristics", "");
+    if(value != ""){
+        PropertySet("ro.build.characteristics", value, &error);
+    }
+
+    value = android::base::GetProperty("ro.custommade.prop.ro.target.product", "");
+    if(value != ""){
+        PropertySet("ro.target.product", value, &error);
+    }
+    PropertySet("ro.target.product.real", "box", &error);
+}
+
 void PropertyLoadBootDefaults() {
     // We read the properties and their values into a map, in order to always allow properties
     // loaded in the later property files to override the properties in loaded in the earlier
     // property files, regardless of if they are "ro." properties or not.
     std::map<std::string, std::string> properties;
+    std::map<std::string, std::string> vpproperties;
 
     if (IsRecoveryMode()) {
         load_properties_from_file("/prop.default", nullptr, &properties);
@@ -1124,8 +1422,57 @@ void PropertyLoadBootDefaults() {
         load_properties_from_file(kDebugRamdiskProp, nullptr, &properties);
     }
 
+    if(access("/.cell", F_OK) == 0)
+    {
+        char props_file_name[PATH_MAX] = "/system/build.simulation.prop";
+        int vmfd = open("/.name", O_RDONLY);
+        if(vmfd >= 0){
+            char buf[125] = {0};
+            int len = read(vmfd, buf, 5);
+            if(len > 0){
+                snprintf(props_file_name, sizeof(props_file_name), "/system/build.simulation.%s.prop", buf);
+            }
+            close(vmfd);
+        }
+        LOG(INFO) << "load before props: " << props_file_name;
+        if(access(props_file_name, F_OK)== 0){
+            load_properties_from_file(props_file_name, nullptr, &vpproperties);
+            LOG(INFO) << "load props: %s" << props_file_name;
+        }else if(access("/system/build.simulation.prop", F_OK)== 0){
+            load_properties_from_file("/system/build.simulation.prop", nullptr, &vpproperties);
+            LOG(INFO) << "load props: /system/build.simulation.prop";
+        }
+
+        for (const auto& [name, value] : vpproperties) {
+            std::string error;
+
+            if(properties.find(name) != properties.end()){
+                continue;
+            }
+
+            if (PropertySet(name, value, &error) != PROP_SUCCESS) {
+                LOG(ERROR) << "Could not set '" << name << "' to '" << value
+                        << "' while loading simulation.prop files" << error;
+            }
+        }   
+    }
+
+    reload_custommade_props();
+
     for (const auto& [name, value] : properties) {
         std::string error;
+
+        if(access("/.cell", F_OK) == 0)
+        {
+            if(vpproperties.find(name) != vpproperties.end()){
+                if (PropertySet(name, vpproperties[name], &error) != PROP_SUCCESS) {
+                    LOG(ERROR) << "Could not set '" << name << "' to '" << vpproperties[name]
+                            << "' while loading simulation.prop files" << error;
+                }
+                continue;
+            }
+        }
+
         if (PropertySet(name, value, &error) != PROP_SUCCESS) {
             LOG(ERROR) << "Could not set '" << name << "' to '" << value
                        << "' while loading .prop files" << error;
@@ -1228,7 +1575,7 @@ static void ExportKernelBootProps() {
         { "ro.boot.mode",       "ro.bootmode",   "unknown", },
         { "ro.boot.baseband",   "ro.baseband",   "unknown", },
         { "ro.boot.bootloader", "ro.bootloader", "unknown", },
-        { "ro.boot.hardware",   "ro.hardware",   "unknown", },
+        //{ "ro.boot.hardware",   "ro.hardware",   "unknown", },
         { "ro.boot.revision",   "ro.revision",   "0", },
             // clang-format on
     };
@@ -1282,6 +1629,23 @@ static void ProcessBootconfig() {
     });
 }
 
+static void InitVMName()
+{
+	int vmfd = open("/.name",O_RDONLY);
+	if (vmfd >= 0) {
+		char buf[125] = {0};
+		int len = read(vmfd, buf, 125);
+		if (len > 0) {
+			InitPropertySet("ro.boot.vm.name", buf);
+			LOG(INFO) << "ro.boot.vm.name = "<< buf;
+		}
+		close(vmfd);
+	}else{
+        InitPropertySet("ro.boot.vm.name", "");
+        LOG(INFO) << "ro.boot.vm.name = ";
+    }
+}
+
 void PropertyInit() {
     selinux_callback cb;
     cb.func_audit = PropertyAuditCallback;
@@ -1305,6 +1669,8 @@ void PropertyInit() {
     // Propagate the kernel variables to internal variables
     // used by init as well as the current required properties.
     ExportKernelBootProps();
+
+    InitVMName();
 
     PropertyLoadBootDefaults();
 }

@@ -89,6 +89,7 @@ ro.boot.boot_devices               u:object_r:bootloader_prop:s0 exact string
 ro.boot.first_stage_console        u:object_r:bootloader_prop:s0 exact string
 ro.boot.force_normal_boot          u:object_r:bootloader_prop:s0 exact string
 ro.boot.hardware                   u:object_r:bootloader_prop:s0 exact string
+ro.boot.hardware.real                   u:object_r:bootloader_prop:s0 exact string
 ro.boot.logd.enabled               u:object_r:bootloader_prop:s0 exact bool
 ro.boot.microdroid.app_debuggable  u:object_r:bootloader_prop:s0 exact bool
 ro.boot.microdroid.debuggable      u:object_r:bootloader_prop:s0 exact bool
@@ -107,6 +108,7 @@ ro.baseband   u:object_r:bootloader_prop:s0 exact string
 ro.bootloader u:object_r:bootloader_prop:s0 exact string
 ro.bootmode   u:object_r:bootloader_prop:s0 exact string
 ro.hardware   u:object_r:bootloader_prop:s0 exact string
+ro.hardware.real   u:object_r:bootloader_prop:s0 exact string
 ro.revision   u:object_r:bootloader_prop:s0 exact string
 
 ro.build.id                     u:object_r:build_prop:s0 exact string

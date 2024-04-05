@@ -129,12 +129,23 @@ bool ProfileAttribute::GetPathForTask(int tid, std::string* path) const {
         return true;
     }
 
+    std::string sgroup;
+    sgroup = controller()->path();
+
+    std::string vmname = android::base::GetProperty("ro.boot.vm.name","");
+    if(vmname != ""){
+        std::string _path = "/sys/fs/cgroup/" + vmname;
+        if(sgroup.find(_path) == 0){
+            sgroup.replace(0, _path.length(), "/sys/fs/cgroup");
+        }
+    }
+
     const std::string& file_name =
             controller()->version() == 2 && !file_v2_name_.empty() ? file_v2_name_ : file_name_;
     if (subgroup.empty()) {
-        *path = StringPrintf("%s/%s", controller()->path(), file_name.c_str());
+        *path = StringPrintf("%s/%s", sgroup.c_str(), file_name.c_str());
     } else {
-        *path = StringPrintf("%s/%s/%s", controller()->path(), subgroup.c_str(), file_name.c_str());
+        *path = StringPrintf("%s/%s/%s", sgroup.c_str(), subgroup.c_str(), file_name.c_str());
     }
     return true;
 }

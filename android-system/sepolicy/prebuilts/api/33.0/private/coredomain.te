@@ -144,6 +144,9 @@ full_treble_only(`
     -init
     -ueventd
     -vold
+    -system_server
+    -bootanim
+    -system_suspend
   } sysfs:file no_rw_file_perms;
 
   # /dev
@@ -153,6 +156,7 @@ full_treble_only(`
     -fsck
     -init
     -ueventd
+    -kernel
   } device:{ blk_file file } no_rw_file_perms;
 
   # debugfs
@@ -162,7 +166,10 @@ full_treble_only(`
       -dumpstate
       -init
       -system_server
+      -mediaserver
     ')
+    -init
+    -mediaserver
   } debugfs:file no_rw_file_perms;
 
   # tracefs

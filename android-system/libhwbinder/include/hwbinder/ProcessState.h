@@ -47,6 +47,7 @@ public:
 
             void                startThreadPool();
 
+            sp<IBinder>         getMgrContextObject(int index);
             sp<IBinder>         getContextObject(const sp<IBinder>& /*caller*/);
                                 // only call once, without creating a pool
             void                becomeContextManager();
@@ -116,6 +117,7 @@ private:
     mutable Mutex               mLock;  // protects everything below.
 
             Vector<handle_entry>mHandleToObject;
+            handle_entry        mSystemContextMgrHandle[CELLS_MAX_CONTEXT];
 
             String8             mRootDir;
             bool                mThreadPoolStarted;

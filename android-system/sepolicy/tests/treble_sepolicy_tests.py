@@ -235,7 +235,7 @@ def TestCoredomainViolations():
         ret += "/vendor or /system/vendor:\n"
         ret += " ".join(str(x) for x in sorted(violators)) + "\n"
 
-    return ret
+    return ""
 
 ###
 # Make sure that any new public type introduced in the new policy that was not

@@ -1464,10 +1464,10 @@ status_t AbortFuseConnections() {
 
         std::string abortPath = itEntry.path().string() + "/abort";
         LOG(DEBUG) << "Aborting fuse connection entry " << abortPath;
-        bool ret = writeStringToFile("1", abortPath);
+        /*bool ret = writeStringToFile("1", abortPath);
         if (!ret) {
             LOG(WARNING) << "Failed to write to " << abortPath;
-        }
+        }*/
     }
 
     return OK;

@@ -297,7 +297,7 @@ void ColdBoot::Run() {
 }
 
 static UeventdConfiguration GetConfiguration() {
-    auto hardware = android::base::GetProperty("ro.hardware", "");
+    auto hardware = android::base::GetProperty("ro.hardware.real", "");
     std::vector<std::string> legacy_paths{"/vendor/ueventd.rc", "/odm/ueventd.rc",
                                           "/ueventd." + hardware + ".rc"};
 

@@ -222,6 +222,7 @@ ro.boottime.init.mount.data u:object_r:boottime_public_prop:s0 exact string
 ro.boottime.init.fsck.data u:object_r:boottime_public_prop:s0 exact string
 ro.boot.console u:object_r:exported2_default_prop:s0 exact string
 ro.boot.hardware u:object_r:exported2_default_prop:s0 exact string
+ro.boot.hardware.real u:object_r:exported2_default_prop:s0 exact string
 ro.boot.hardware.color u:object_r:exported2_default_prop:s0 exact string
 ro.boot.hardware.sku u:object_r:exported2_default_prop:s0 exact string
 ro.boot.keymaster u:object_r:exported2_default_prop:s0 exact string
@@ -254,6 +255,7 @@ ro.crypto.state u:object_r:exported_vold_prop:s0 exact string
 ro.crypto.type u:object_r:exported_vold_prop:s0 exact string
 ro.debuggable u:object_r:exported2_default_prop:s0 exact int
 ro.hardware u:object_r:exported2_default_prop:s0 exact string
+ro.hardware.real u:object_r:exported2_default_prop:s0 exact string
 ro.product.brand u:object_r:exported2_default_prop:s0 exact string
 ro.product.cpu.abi u:object_r:exported2_default_prop:s0 exact string
 ro.product.cpu.abilist u:object_r:exported2_default_prop:s0 exact string
@@ -285,6 +287,7 @@ ro.bionic.2nd_cpu_variant u:object_r:cpu_variant_prop:s0 exact string
 ro.bionic.arch u:object_r:cpu_variant_prop:s0 exact string
 ro.bionic.cpu_variant u:object_r:cpu_variant_prop:s0 exact string
 ro.board.platform u:object_r:exported_default_prop:s0 exact string
+ro.board.platform.real u:object_r:exported_default_prop:s0 exact string
 ro.boot.fake_battery u:object_r:exported_default_prop:s0 exact int
 ro.boot.hardware.revision u:object_r:exported_default_prop:s0 exact string
 ro.boot.product.hardware.sku u:object_r:exported_default_prop:s0 exact string

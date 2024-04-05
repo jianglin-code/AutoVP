@@ -1,0 +1,63 @@
+
+#============= surfaceflinger ==============
+allow surfaceflinger vendor_hwc_prop:file { getattr map open read };
+
+#============= hal_keymint_default ==============
+allow hal_keymint_default serialno_prop:file read;
+
+#============= hal_tv_cec_default ==============
+allow hal_tv_cec_default device:chr_file { ioctl open read write };
+
+#============= hal_bluetooth_default ==============
+allow hal_bluetooth_default device:dir { read watch };
+
+#============= hal_keymint_default ==============
+allow hal_keymint_default default_prop:file { open read getattr map };
+allow hal_keymint_default serialno_prop:file { getattr map open };
+
+#============= mediacodec ==============
+allow mediacodec init:unix_stream_socket connectto;
+allow mediacodec property_socket:sock_file write;
+allow mediacodec vendor_default_prop:property_service set;
+
+#============= np_rockchip_drmservice ==============
+allow np_rockchip_drmservice block_device:dir search;
+allow np_rockchip_drmservice uboot_block_device:blk_file { getattr open read write };
+
+#allow untrusted_app_30 vendor_system_public_prop:file { getattr map open read };
+#allow permissioncontroller_app vendor_system_public_prop:file { getattr map open read };
+#allow surfaceflinger vendor_system_public_prop:property_service set;
+
+#============= hal_audio_default ==============
+allow hal_audio_default system_data_root_file:file read;
+
+#============= hal_bluetooth_default ==============
+#allow hal_bluetooth_default bluetooth_data_file:dir search;
+allow hal_bluetooth_default system_data_root_file:file read;
+
+#============= hal_camera_default ==============
+allow hal_camera_default system_data_root_file:file read;
+
+#============= hal_cas_default ==============
+allow hal_cas_default system_data_root_file:file read;
+
+#============= hal_drm_widevine ==============
+allow hal_drm_widevine system_data_root_file:file read;
+
+#============= hal_gatekeeper_default ==============
+allow hal_gatekeeper_default system_data_root_file:file read;
+
+#============= hal_graphics_composer_default ==============
+allow hal_graphics_composer_default default_prop:file { getattr map open read };
+#allow hal_graphics_composer_default system_file:file { getattr open read };
+
+#============= hal_camera_default ==============
+allow hal_camera_default default_prop:file { getattr map open read };
+
+#============= hal_graphics_allocator_default ==============
+allow hal_graphics_allocator_default vendor_default_prop:property_service set;
+
+#============= hal_tv_cec_default ==============
+allow hal_tv_cec_default init:unix_stream_socket connectto;
+allow hal_tv_cec_default property_socket:sock_file write;
+allow hal_tv_cec_default vendor_cec_prop:property_service set;

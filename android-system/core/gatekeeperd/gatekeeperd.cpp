@@ -68,6 +68,7 @@ class GateKeeperProxy : public BnGateKeeperService {
         clear_state_if_needed_done = false;
         hw_device = IGatekeeper::getService();
         is_running_gsi = android::base::GetBoolProperty(android::gsi::kGsiBootedProp, false);
+        ALOGD("%s: is_running_gsi = %d ", __func__, is_running_gsi);
 
         if (!hw_device) {
             LOG(ERROR) << "Could not find Gatekeeper device, which makes me very sad.";
@@ -93,7 +94,7 @@ class GateKeeperProxy : public BnGateKeeperService {
             return;
         }
 
-        if (mark_cold_boot() && !is_running_gsi) {
+        if (mark_cold_boot() && !is_running_gsi && !get_cells_index()) {
             ALOGI("cold boot: clearing state");
             if (hw_device) {
                 hw_device->deleteAllUsers([](const GatekeeperResponse&) {});
@@ -152,9 +153,9 @@ class GateKeeperProxy : public BnGateKeeperService {
         CHECK(userId < kGsiOffset);
         CHECK(hw_device != nullptr);
         if (is_running_gsi) {
-            return userId + kGsiOffset;
+            return userId + kGsiOffset + get_cells_index() * 2000000;
         }
-        return userId;
+        return userId + get_cells_index() * 2000000;
     }
 
 #define GK_ERROR *gkResponse = GKResponse::error(), Status::ok()
@@ -393,6 +394,21 @@ class GateKeeperProxy : public BnGateKeeperService {
         return OK;
     }
 
+    uint32_t get_cells_index(){
+        std::string prop = android::base::GetProperty("ro.boot.vm", "0");
+        if(prop == "1"){
+            prop = android::base::GetProperty("ro.boot.vm.name", "");
+            int index = 0;
+            sscanf(prop.c_str(), "cell%d",&index);
+            if(index > 0 && index < CELLS_MAX_CONTEXT){
+                ALOGD("%s: index = %d", __func__, index);
+                return index;
+            }
+        }
+
+        return 0;
+    }
+
   private:
     sp<IGatekeeper> hw_device;
 
@@ -403,6 +419,9 @@ class GateKeeperProxy : public BnGateKeeperService {
 
 int main(int argc, char* argv[]) {
     ALOGI("Starting gatekeeperd...");
+
+    //android::OtherSystemServiceLoopRun();
+
     if (argc < 2) {
         ALOGE("A directory must be specified!");
         return 1;

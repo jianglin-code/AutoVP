@@ -1,0 +1,241 @@
+#============= bootanim ==============
+allow bootanim mediaserver:binder call;
+allow bootanim sysfs:file { open read write };
+
+#============= init ==============
+allow init sysfs:file open;
+
+#============= kernel ==============
+allow kernel device:blk_file { getattr setattr unlink };
+
+#============= mediaserver ==============
+allow mediaserver bootanim:binder call;
+
+#============= priv_app ==============
+allow priv_app metadata_file:dir search;
+
+#============= system_app ==============
+allow system_app vendor_default_prop:property_service set;
+
+#============= system_app ==============
+allow system_app serialno_prop:file { getattr map open read };
+
+#============= system_server ==============
+allow system_server sysfs:file { getattr open read };
+
+#============= system_suspend ==============
+allow system_suspend sysfs:dir { open read };
+allow system_suspend sysfs:file { getattr open read };
+
+#============= tee ==============
+allow tee init:unix_stream_socket connectto;
+allow tee property_socket:sock_file write;
+allow tee vendor_default_prop:property_service set;
+
+#============= vendor_init ==============
+allow vendor_init debugfs:file setattr;
+allow vendor_init init_service_status_private_prop:file read;
+allow vendor_init system_prop:file read;
+allow vendor_init debugfs_trace_marker:file getattr;
+allow vendor_init default_prop:file read;
+
+#============= gmscore_app ==============
+allow gmscore_app metadata_file:dir search;
+
+#============= init ==============
+allow init debugfs_tracing_debug:dir mounton;
+
+#============= kernel ==============
+allow kernel device:blk_file create;
+
+#============= mediaserver ==============
+allow mediaserver system_data_file:file getattr;
+
+#============= odrefresh ==============
+allow odrefresh aac_drc_prop:file { getattr map open };
+allow odrefresh ab_update_gki_prop:file { getattr map open };
+allow odrefresh adaptive_haptics_prop:file { getattr map open };
+allow odrefresh adbd_config_prop:file open;
+
+#============= platform_app ==============
+allow platform_app metadata_file:dir search;
+
+#============= bootanim ==============
+allow bootanim mediaserver:binder transfer;
+allow bootanim system_prop:property_service set;
+
+#============= init ==============
+allow init device:chr_file write;
+allow init devpts:chr_file { getattr ioctl };
+allow init fuse:dir setattr;
+allow init init_exec:file execute_no_trans;
+allow init init_exec:lnk_file { getattr read };
+allow init kernel:security { load_policy setcheckreqprot };
+allow init mnt_user_file:lnk_file read;
+allow init proc:file write;
+allow init proc_cpuinfo:file write;
+allow init proc_version:file write;
+allow init shell_exec:file execute_no_trans;
+allow init sysfs:file write;
+allow init sysfs_devices_system_cpu:file write;
+allow init system_file:file execute_no_trans;
+allow init tmpfs:lnk_file create;
+
+#============= isolated_app ==============
+allow isolated_app app_data_file:file setattr;
+allow isolated_app app_zygote:unix_stream_socket getopt;
+allow isolated_app webview_zygote:unix_stream_socket getopt;
+
+#============= lmkd ==============
+allow lmkd tmpfs:lnk_file read;
+
+#============= logd ==============
+allow logd tmpfs:lnk_file read;
+
+#============= logpersist ==============
+allow logpersist tmpfs:lnk_file read;
+
+#============= mdnsd ==============
+allow mdnsd tmpfs:lnk_file read;
+
+#============= mediaserver ==============
+allow mediaserver bootanim:binder transfer;
+allow mediaserver debugfs:file { open read };
+
+#============= odrefresh ==============
+allow odrefresh adbd_config_prop:file { getattr map };
+allow odrefresh adbd_prop:file { getattr map open };
+allow odrefresh apexd_config_prop:file { getattr map open };
+allow odrefresh apexd_payload_metadata_prop:file { getattr open };
+
+#============= system_server ==============
+allow system_server init:binder call;
+
+#============= toolbox ==============
+allow toolbox init:fifo_file { read write };
+allow toolbox proc_net:file { getattr open read };
+allow toolbox self:udp_socket { create ioctl };
+allow toolbox sysfs_net:dir search;
+
+#============= untrusted_app ==============
+allow untrusted_app metadata_file:dir search;
+#allow untrusted_app su_exec:file { execute getattr };
+
+#============= untrusted_app_30 ==============
+allow untrusted_app_30 metadata_file:dir search;
+allow untrusted_app_30 serialno_prop:file { getattr map open read };
+
+#============= zygote ==============
+allow zygote tmpfs:lnk_file read;
+
+#============= permissioncontroller_app ==============
+allow permissioncontroller_app metadata_file:dir search;
+
+allow init device:chr_file { open read };
+allow init self:capability sys_module;
+allow init self:netlink_route_socket { bind create getattr nlmsg_write read setopt write };
+allow init servicemanager:binder { call transfer };
+allow init socket_device:sock_file { create setattr };
+allow init debugfs:file setattr;
+allow init proc:file setattr;
+allow init proc_keys:file { getattr open read };
+allow init self:netlink_kobject_uevent_socket { bind create getopt read setopt };
+allow init self:netlink_route_socket nlmsg_readpriv;
+allow init sysfs:file setattr;
+allow init sysfs_bluetooth_writable:lnk_file read;
+#allow init sysfs_dmc:file setattr;
+#allow init sysfs_hdmi:file setattr;
+allow init vold:key view;
+
+#============= linkerconfig ==============
+allow linkerconfig system_data_root_file:file read;
+
+#============= logd ==============
+allow logd system_data_root_file:file read;
+
+#============= mediaserver ==============
+allow mediaserver bootanim:fd use;
+
+#============= netd ==============
+allow netd tmpfs:lnk_file read;
+
+#============= prng_seeder ==============
+allow prng_seeder system_data_root_file:file read;
+
+#============= shell ==============
+allow shell system_data_root_file:file read;
+
+#============= surfaceflinger ==============
+allow surfaceflinger metadata_file:dir search;
+
+#============= toolbox ==============
+allow toolbox self:capability net_admin;
+
+#!!!! This avc is allowed in the current policy
+#!!!! This av rule may have been overridden by an extended permission av rule
+allow toolbox self:udp_socket ioctl;
+allow toolbox system_data_root_file:file read;
+
+#============= ueventd ==============
+allow ueventd system_data_root_file:file read;
+
+#============= untrusted_app_27 ==============
+#allow untrusted_app_27 proc:file { getattr open read };
+#allow untrusted_app_27 su_exec:file { execute getattr };
+#allow untrusted_app_27 wifi_hal_prop:file read;
+
+#============= vendor_boringssl_self_test ==============
+allow vendor_boringssl_self_test system_data_root_file:file read;
+
+#============= vendor_init ==============
+allow vendor_init system_data_root_file:file read;
+
+#============= vold_prepare_subdirs ==============
+allow vold_prepare_subdirs system_data_root_file:file read;
+
+#============= adbd ==============
+allow adbd system_data_root_file:file read;
+
+#============= apexd ==============
+allow apexd system_data_root_file:file read;
+
+#============= audioserver ==============
+allow audioserver system_data_root_file:file read;
+
+#============= bootstat ==============
+allow bootstat system_data_root_file:file read;
+
+#============= boringssl_self_test ==============
+allow boringssl_self_test system_data_root_file:file read;
+
+#============= extra_free_kbytes ==============
+allow extra_free_kbytes system_data_root_file:file read;
+
+#============= hal_allocator_default ==============
+allow hal_allocator_default system_data_root_file:file read;
+
+#============= bootanim ==============
+allow bootanim metadata_file:dir search;
+
+#============= surfaceflinger ==============
+allow surfaceflinger tmpfs:lnk_file read;
+#allow surfaceflinger vendor_system_public_prop:property_service set;
+
+#============= toolbox ==============
+allow toolbox init:fifo_file getattr;
+allow toolbox init:file read;
+allow toolbox prng_seeder:file read;
+allow toolbox proc_pid_max:file { open read };
+#allow toolbox self:capability sys_ptrace;
+
+#!!!! This avc is allowed in the current policy
+#!!!! This av rule may have been overridden by an extended permission av rule
+allow toolbox self:udp_socket ioctl;
+allow toolbox ueventd:file read;
+allow toolbox vendor_init:file read;
+
+#============= vendor_init ==============
+#allow vendor_init system_data_file:dir { ioctl open read setattr };
+
+#============= vold ==============
+allow vold init_tmpfs:file { getattr open read };

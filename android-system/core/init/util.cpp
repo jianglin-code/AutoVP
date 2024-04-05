@@ -761,7 +761,7 @@ void SetDefaultMountNamespaceReady() {
 }
 
 bool IsMicrodroid() {
-    static bool is_microdroid = android::base::GetProperty("ro.hardware", "") == "microdroid";
+    static bool is_microdroid = android::base::GetProperty("ro.hardware.real", "") == "microdroid";
     return is_microdroid;
 }
 

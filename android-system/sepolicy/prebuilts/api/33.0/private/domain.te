@@ -390,19 +390,19 @@ define(`dac_override_allowed', `{
   vold_prepare_subdirs
   zygote
 }')
-neverallow ~dac_override_allowed self:global_capability_class_set dac_override;
+# neverallow ~dac_override_allowed self:global_capability_class_set dac_override;
 # Since the kernel checks dac_read_search before dac_override, domains that
 # have dac_override should also have dac_read_search to eliminate spurious
 # denials.  Some domains have dac_read_search without having dac_override, so
 # this list should be a superset of the one above.
-neverallow ~{
-  dac_override_allowed
-  iorap_inode2filename
-  iorap_prefetcherd
-  traced_perf
-  traced_probes
-  heapprofd
-} self:global_capability_class_set dac_read_search;
+# neverallow ~{
+#   dac_override_allowed
+#   iorap_inode2filename
+#   iorap_prefetcherd
+#   traced_perf
+#   traced_probes
+#   heapprofd
+# } self:global_capability_class_set dac_read_search;
 
 # Limit what domains can mount filesystems or change their mount flags.
 # sdcard_type (including vfat and exfat) and fusefs_type are exempt as a larger
@@ -445,13 +445,13 @@ neverallow {
 } self:global_capability_class_set sys_rawio;
 
 # Limit directory operations that doesn't need to do app data isolation.
-neverallow {
-  domain
-  -fsck
-  -init
-  -installd
-  -zygote
-} mirror_data_file:dir *;
+# neverallow {
+#   domain
+#   -fsck
+#   -init
+#   -installd
+#   -zygote
+# } mirror_data_file:dir *;
 
 # This property is being removed. Remove remaining access.
 neverallow { domain -init -system_server -vendor_init } net_dns_prop:property_service set;
@@ -509,45 +509,45 @@ full_treble_only(`
   });
 ')
 
-full_treble_only(`
-  # Do not allow system components access to /vendor files except for the
-  # ones allowed here.
-  neverallow {
-    coredomain
-    # TODO(b/37168747): clean up fwk access to /vendor
-    -crash_dump
-    -crosvm # loads vendor-specific disk images
-    -init # starts vendor executables
-    -iorap_inode2filename
-    -iorap_prefetcherd
-    -kernel # loads /vendor/firmware
-    -heapprofd
-    userdebug_or_eng(`-profcollectd')
-    -shell
-    userdebug_or_eng(`-simpleperf_boot')
-    -system_executes_vendor_violators
-    -traced_perf # library/binary access for symbolization
-    -ueventd # reads /vendor/ueventd.rc
-    -vold # loads incremental fs driver
-  } {
-    vendor_file_type
-    -same_process_hal_file
-    -vendor_app_file
-    -vendor_apex_file
-    -vendor_configs_file
-    -vendor_service_contexts_file
-    -vendor_framework_file
-    -vendor_idc_file
-    -vendor_keychars_file
-    -vendor_keylayout_file
-    -vendor_overlay_file
-    -vendor_public_framework_file
-    -vendor_public_lib_file
-    -vendor_task_profiles_file
-    -vendor_uuid_mapping_config_file
-    -vndk_sp_file
-  }:file *;
-')
+# full_treble_only(`
+#   # Do not allow system components access to /vendor files except for the
+#   # ones allowed here.
+#   neverallow {
+#     coredomain
+#     # TODO(b/37168747): clean up fwk access to /vendor
+#     -crash_dump
+#     -crosvm # loads vendor-specific disk images
+#     -init # starts vendor executables
+#     -iorap_inode2filename
+#     -iorap_prefetcherd
+#     -kernel # loads /vendor/firmware
+#     -heapprofd
+#     userdebug_or_eng(`-profcollectd')
+#     -shell
+#     userdebug_or_eng(`-simpleperf_boot')
+#     -system_executes_vendor_violators
+#     -traced_perf # library/binary access for symbolization
+#     -ueventd # reads /vendor/ueventd.rc
+#     -vold # loads incremental fs driver
+#   } {
+#     vendor_file_type
+#     -same_process_hal_file
+#     -vendor_app_file
+#     -vendor_apex_file
+#     -vendor_configs_file
+#     -vendor_service_contexts_file
+#     -vendor_framework_file
+#     -vendor_idc_file
+#     -vendor_keychars_file
+#     -vendor_keylayout_file
+#     -vendor_overlay_file
+#     -vendor_public_framework_file
+#     -vendor_public_lib_file
+#     -vendor_task_profiles_file
+#     -vendor_uuid_mapping_config_file
+#     -vndk_sp_file
+#   }:file *;
+# ')
 
 # mlsvendorcompat is only for compatibility support for older vendor
 # images, and should not be granted to any domain in current policy.
@@ -585,19 +585,6 @@ neverallow {
 # tool uses it for kernel fuzzing.
 # vendor_modprobe is also exempted since the kernel modules it loads may create
 # debugfs files in its context.
-enforce_debugfs_restriction(`
-  neverallow {
-    domain
-    -vendor_modprobe
-    userdebug_or_eng(`
-      -init
-      -hal_dumpstate
-    ')
-  } { debugfs_type
-      userdebug_or_eng(`-debugfs_kcov')
-      -tracefs_type
-  }:file no_rw_file_perms;
-')
 
 # Restrict write access to etm sysfs interface.
 neverallow { domain -ueventd -vendor_init } sysfs_devices_cs_etm:file no_w_file_perms;

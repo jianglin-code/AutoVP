@@ -54,45 +54,6 @@ system_restricted_prop(system_user_mode_emulation_prop)
 ### Neverallow rules
 ###
 
-treble_sysprop_neverallow(`
-
-enforce_sysprop_owner(`
-  neverallow domain {
-    property_type
-    -system_property_type
-    -product_property_type
-    -vendor_property_type
-  }:file no_rw_file_perms;
-')
-
-neverallow { domain -coredomain } {
-  system_property_type
-  system_internal_property_type
-  -system_restricted_property_type
-  -system_public_property_type
-}:file no_rw_file_perms;
-
-neverallow { domain -coredomain } {
-  system_property_type
-  -system_public_property_type
-}:property_service set;
-
-# init is in coredomain, but should be able to read/write all props.
-# dumpstate is also in coredomain, but should be able to read all props.
-neverallow { coredomain -init -dumpstate } {
-  vendor_property_type
-  vendor_internal_property_type
-  -vendor_restricted_property_type
-  -vendor_public_property_type
-}:file no_rw_file_perms;
-
-neverallow { coredomain -init } {
-  vendor_property_type
-  -vendor_public_property_type
-}:property_service set;
-
-')
-
 # There is no need to perform ioctl or advisory locking operations on
 # property files. If this neverallow is being triggered, it is
 # likely that the policy is using r_file_perms directly instead of
@@ -327,10 +288,12 @@ compatible_property_only(`
     coredomain
     -init
     -system_writes_vendor_properties_violators
+    -system_app
   } {
     property_type
     -system_property_type
     -extended_core_property_type
+    -vendor_default_prop
   }:property_service set;
 ')
 

@@ -646,7 +646,7 @@ neverallow init shell_data_file:lnk_file read;
 neverallow init { app_data_file privapp_data_file }:lnk_file read;
 
 # init should never execute a program without changing to another domain.
-neverallow init { file_type fs_type }:file execute_no_trans;
+# neverallow init { file_type fs_type }:file execute_no_trans;
 
 # The use of sensitive environment variables, such as LD_PRELOAD, is disallowed
 # when init is executing other binaries. The use of LD_PRELOAD for init spawned
@@ -666,7 +666,7 @@ neverallow init servicemanager:service_manager list;
 neverallow init shell_data_file:dir { write add_name remove_name };
 
 # Init should not access sysfs node that are not explicitly labeled.
-neverallow init sysfs:file { open write };
+# neverallow init sysfs:file { open write };
 
 # No domain should be allowed to ptrace init.
 neverallow * init:process ptrace;

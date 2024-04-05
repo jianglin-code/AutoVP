@@ -69,6 +69,26 @@ static constexpr bool kIsRecovery = true;
 static constexpr bool kIsRecovery = false;
 #endif
 
+static bool getinithidlservice(const char* descriptor)
+{
+    static const char* inithidlservice[]={
+        NULL
+    };
+
+    std::string prop = android::base::GetProperty("ro.boot.vm", "1");
+    if (prop == "0") {
+        return false;
+    }
+
+    for(int i =0;  inithidlservice[i] != NULL;  i++){
+        if(strncmp(descriptor, inithidlservice[i], strlen( inithidlservice[i])) == 0){
+            ALOGD("getinithidlservice %s", descriptor);
+            return true;
+        }
+    }
+    return false;
+}
+
 static void waitForHwServiceManager() {
     // TODO(b/31559095): need bionic host so that we can use 'prop_info' returned
     // from WaitForProperty
@@ -234,6 +254,23 @@ sp<IServiceManager1_2> defaultServiceManager1_2() {
                 sleep(1);
             }
         }
+    }
+
+    return gDefaultServiceManager;
+}
+
+static sp<IServiceManager1_2> initdefaultServiceManager() {
+    using android::hidl::manager::V1_2::BnHwServiceManager;
+    using android::hidl::manager::V1_2::BpHwServiceManager;
+
+    static std::mutex& gDefaultServiceManagerLock = *new std::mutex;
+    static sp<IServiceManager1_2>& gDefaultServiceManager = *new sp<IServiceManager1_2>;
+
+    {
+        std::lock_guard<std::mutex> _l(gDefaultServiceManagerLock);
+        gDefaultServiceManager =
+            fromBinder<IServiceManager1_2, BpHwServiceManager, BnHwServiceManager>(
+                ProcessState::self()->getMgrContextObject(0));
     }
 
     return gDefaultServiceManager;
@@ -565,6 +602,10 @@ sp<IServiceManager1_1> getPassthroughServiceManager1_1() {
 std::vector<std::string> getAllHalInstanceNames(const std::string& descriptor) {
     std::vector<std::string> ret;
     auto sm = defaultServiceManager1_2();
+    bool getinithidl = getinithidlservice(descriptor.c_str());
+    if(getinithidl) {
+        sm = initdefaultServiceManager();
+    }
     sm->listManifestByInterface(descriptor, [&](const auto& instances) {
         ret.reserve(instances.size());
         for (const auto& i : instances) {
@@ -702,6 +743,9 @@ struct Waiter : IServiceNotification {
 
 void waitForHwService(
         const std::string &interface, const std::string &instanceName) {
+    bool getinithidl = getinithidlservice(interface.c_str());
+    if(getinithidl) return;
+
     sp<Waiter> waiter = new Waiter(interface, instanceName, defaultServiceManager1_1());
     waiter->wait(false /* timeout */);
     waiter->done();
@@ -749,7 +793,11 @@ sp<::android::hidl::base::V1_0::IBase> getRawServiceInternal(const std::string& 
     if (kIsRecovery) {
         transport = Transport::PASSTHROUGH;
     } else {
-        sm = defaultServiceManager1_1();
+        if(getinithidlservice(descriptor.c_str())){
+            sm = initdefaultServiceManager();
+        }else{
+            sm = defaultServiceManager1_1();
+        }
         if (sm == nullptr) {
             ALOGE("getService: defaultServiceManager() is null");
             return nullptr;

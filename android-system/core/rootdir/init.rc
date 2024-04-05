@@ -6,8 +6,8 @@
 
 import /init.environ.rc
 import /system/etc/init/hw/init.usb.rc
-import /init.${ro.hardware}.rc
-import /vendor/etc/init/hw/init.${ro.hardware}.rc
+import /init.rk30board.rc
+import /vendor/etc/init/hw/init.rk30board.rc
 import /system/etc/init/hw/init.usb.configfs.rc
 import /system/etc/init/hw/init.${ro.zygote}.rc
 
@@ -65,6 +65,13 @@ on early-init
     mount none /linkerconfig/bootstrap /linkerconfig bind rec
 
     start ueventd
+
+    setprop ro.boot.vm 0
+    setprop persist.sys.exit 0
+    setprop persist.sys.ui.exit 0
+    setprop persist.sys.iw.wlan ""
+    setprop persist.logd.logpersistd logcatd
+    setprop persist.sys.sdcardfs force_on
 
     # Run apexd-bootstrap so that APEXes that provide critical libraries
     # become available. Note that this is executed as exec_start to ensure that
@@ -1329,3 +1336,35 @@ on property:persist.device_config.mglru_native.lru_gen_config=core_and_nonleaf_y
   write /sys/kernel/mm/lru_gen/enabled 5
 on property:persist.device_config.mglru_native.lru_gen_config=all
   write /sys/kernel/mm/lru_gen/enabled 7
+
+service celld /system/bin/celld -c /data/cells -s /data/cells_sd -F -r
+    class main
+    user root
+    group root
+    seclabel  u:r:init:s0
+
+service cellsservice /system/bin/cellsservice
+    class main
+    user root
+    group root
+    seclabel  u:r:init:s0
+
+service virtualcamera /system/bin/virtualcamera
+    class main
+    user root
+    group root
+    seclabel  u:r:init:s0
+
+on property:sys.boot_completed=1
+    write /sys/devices/system/cpu/cpu0/online 1
+    write /sys/devices/system/cpu/cpu1/online 1
+    write /sys/devices/system/cpu/cpu2/online 1
+    write /sys/devices/system/cpu/cpu3/online 1
+    write /sys/devices/system/cpu/cpu4/online 1
+    write /sys/devices/system/cpu/cpu5/online 1
+    write /sys/devices/system/cpu/cpu6/online 1
+    write /sys/devices/system/cpu/cpu7/online 1
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor performance
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 1008000
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 1800000
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 1008000

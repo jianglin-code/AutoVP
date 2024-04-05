@@ -23,6 +23,10 @@
 #include <utils/RefBase.h>
 #include <utils/String16.h>
 
+#ifndef CELLS_MAX_CONTEXT
+#define CELLS_MAX_CONTEXT 20
+#endif
+
 // WARNING: this code is part of libhwbinder, a fork of libbinder. Generally,
 // this means that it is only relevant to HIDL. Any AIDL- or libbinder-specific
 // code should not try to use these things.

@@ -160,6 +160,13 @@ static void MergeCgroupToDescriptors(std::map<std::string, CgroupDescriptor>* de
         path = cgroup_path;
     }
 
+    std::string vmname = android::base::GetProperty("ro.boot.vm.name","");
+    if(vmname != "" && path.find("/sys/fs/cgroup") == 0){
+        std::string newsubstr = "/sys/fs/cgroup/" + vmname;
+        path.replace(0, strlen("/sys/fs/cgroup"), newsubstr);
+        LOG(ERROR) << "path: " << path;
+    }
+
     uint32_t controller_flags = 0;
 
     if (cgroup["NeedsActivation"].isBool() && cgroup["NeedsActivation"].asBool()) {
@@ -261,9 +268,18 @@ static bool SetupCgroup(const CgroupDescriptor& descriptor) {
     if (controller->version() == 2) {
         result = 0;
         if (!strcmp(controller->name(), CGROUPV2_CONTROLLER_NAME)) {
+            std::string path = controller->path();
+            std::string vmname = android::base::GetProperty("ro.boot.vm.name","");
+            if(vmname != ""){
+                std::string _path = "/sys/fs/cgroup/" + vmname;
+                if(path.find(_path) == 0){
+                    path.replace(0, _path.length(), "/sys/fs/cgroup");
+                }
+            }
+
             // /sys/fs/cgroup is created by cgroup2 with specific selinux permissions,
             // try to create again in case the mount point is changed
-            if (!Mkdir(controller->path(), 0, "", "")) {
+            if (!Mkdir(path.c_str(), 0, "", "")) {
                 LOG(ERROR) << "Failed to create directory for " << controller->name() << " cgroup";
                 return false;
             }
@@ -272,17 +288,17 @@ static bool SetupCgroup(const CgroupDescriptor& descriptor) {
             // 8a931f801340 ("mm: memcontrol: recursive memory.low protection"; v5.7). Try first to
             // mount with that option enabled. If mounting fails because the kernel is too old,
             // retry without that mount option.
-            if (mount("none", controller->path(), "cgroup2", MS_NODEV | MS_NOEXEC | MS_NOSUID,
+            if (mount("none", path.c_str(), "cgroup2", MS_NODEV | MS_NOEXEC | MS_NOSUID,
                       "memory_recursiveprot") < 0) {
                 LOG(INFO) << "Mounting memcg with memory_recursiveprot failed. Retrying without.";
-                if (mount("none", controller->path(), "cgroup2", MS_NODEV | MS_NOEXEC | MS_NOSUID,
+                if (mount("none", path.c_str(), "cgroup2", MS_NODEV | MS_NOEXEC | MS_NOSUID,
                           nullptr) < 0) {
                     PLOG(ERROR) << "Failed to mount cgroup v2";
                 }
             }
 
             // selinux permissions change after mounting, so it's ok to change mode and owner now
-            if (!ChangeDirModeAndOwner(controller->path(), descriptor.mode(), descriptor.uid(),
+            if (!ChangeDirModeAndOwner(path.c_str(), descriptor.mode(), descriptor.uid(),
                                        descriptor.gid())) {
                 LOG(ERROR) << "Failed to create directory for " << controller->name() << " cgroup";
                 result = -1;

@@ -166,6 +166,7 @@ ro.boot.bootloader u:object_r:exported2_default_prop:s0 exact string
 ro.boot.boottime u:object_r:exported2_default_prop:s0 exact string
 ro.boot.console u:object_r:exported2_default_prop:s0 exact string
 ro.boot.hardware u:object_r:exported2_default_prop:s0 exact string
+ro.boot.hardware.real u:object_r:exported2_default_prop:s0 exact string
 ro.boot.hardware.color u:object_r:exported2_default_prop:s0 exact string
 ro.boot.hardware.sku u:object_r:exported2_default_prop:s0 exact string
 ro.boot.keymaster u:object_r:exported2_default_prop:s0 exact string
@@ -199,6 +200,7 @@ ro.crypto.state u:object_r:exported_vold_prop:s0 exact string
 ro.crypto.type u:object_r:exported_vold_prop:s0 exact string
 ro.debuggable u:object_r:exported2_default_prop:s0 exact int
 ro.hardware u:object_r:exported2_default_prop:s0 exact string
+ro.hardware.real u:object_r:exported2_default_prop:s0 exact string
 ro.product.brand u:object_r:exported2_default_prop:s0 exact string
 ro.product.cpu.abi u:object_r:exported2_default_prop:s0 exact string
 ro.product.cpu.abilist u:object_r:exported2_default_prop:s0 exact string
@@ -225,6 +227,7 @@ media.mediadrmservice.enable u:object_r:exported_default_prop:s0 exact bool
 persist.rcs.supported u:object_r:exported_default_prop:s0 exact int
 rcs.publish.status u:object_r:exported_radio_prop:s0 exact string
 ro.board.platform u:object_r:exported_default_prop:s0 exact string
+ro.board.platform.real u:object_r:exported_default_prop:s0 exact string
 ro.boot.fake_battery u:object_r:exported_default_prop:s0 exact int
 ro.boot.hardware.revision u:object_r:exported_default_prop:s0 exact string
 ro.boot.product.hardware.sku u:object_r:exported_default_prop:s0 exact string

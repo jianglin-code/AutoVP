@@ -916,9 +916,6 @@ define(`define_prop', `
 #
 define(`system_internal_prop', `
   define_prop($1, system, internal)
-  treble_sysprop_neverallow(`
-    neverallow { domain -coredomain } $1:file no_rw_file_perms;
-  ')
 ')
 
 ###########################################
@@ -992,10 +989,6 @@ define(`product_public_prop', `define_prop($1, product, public)')
 #
 define(`vendor_internal_prop', `
   define_prop($1, vendor, internal)
-  treble_sysprop_neverallow(`
-# init and dumpstate are in coredomain, but should be able to read all props.
-    neverallow { coredomain -init -dumpstate } $1:file no_rw_file_perms;
-  ')
 ')
 
 ###########################################

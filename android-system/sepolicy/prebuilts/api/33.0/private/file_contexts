@@ -12,6 +12,7 @@
 /selinux_version    u:object_r:rootfs:s0
 /ueventd\..*        u:object_r:rootfs:s0
 /verity_key         u:object_r:rootfs:s0
+/cells(/.*)?        u:object_r:rootfs:s0
 
 # Executables
 /init               u:object_r:init_exec:s0

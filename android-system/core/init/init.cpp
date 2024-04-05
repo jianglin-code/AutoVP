@@ -307,27 +307,38 @@ Parser CreateServiceOnlyParser(ServiceList& service_list, bool from_apex) {
 static void LoadBootScripts(ActionManager& action_manager, ServiceList& service_list) {
     Parser parser = CreateParser(action_manager, service_list);
 
-    std::string bootscript = GetProperty("ro.boot.init_rc", "");
-    if (bootscript.empty()) {
-        parser.ParseConfig("/system/etc/init/hw/init.rc");
-        if (!parser.ParseConfig("/system/etc/init")) {
-            late_import_paths.emplace_back("/system/etc/init");
+    if(access("/.cell", F_OK) == 0){
+        LOG(INFO) << "LOAD VP RC...";
+        parser.ParseConfig("/cells/system/hw/init.rc");
+        if (!parser.ParseConfig("/cells/system")) {
+            late_import_paths.emplace_back("/cells/system");
         }
-        // late_import is available only in Q and earlier release. As we don't
-        // have system_ext in those versions, skip late_import for system_ext.
-        parser.ParseConfig("/system_ext/etc/init");
-        if (!parser.ParseConfig("/vendor/etc/init")) {
-            late_import_paths.emplace_back("/vendor/etc/init");
+        if (!parser.ParseConfig("/cells/vendor")) {
+            late_import_paths.emplace_back("/cells/vendor");
         }
-        if (!parser.ParseConfig("/odm/etc/init")) {
-            late_import_paths.emplace_back("/odm/etc/init");
-        }
-        if (!parser.ParseConfig("/product/etc/init")) {
-            late_import_paths.emplace_back("/product/etc/init");
-        }
-    } else {
-        parser.ParseConfig(bootscript);
-    }
+    }else{
+	    std::string bootscript = GetProperty("ro.boot.init_rc", "");
+	    if (bootscript.empty()) {
+		parser.ParseConfig("/system/etc/init/hw/init.rc");
+		if (!parser.ParseConfig("/system/etc/init")) {
+		    late_import_paths.emplace_back("/system/etc/init");
+		}
+		// late_import is available only in Q and earlier release. As we don't
+		// have system_ext in those versions, skip late_import for system_ext.
+		parser.ParseConfig("/system_ext/etc/init");
+		if (!parser.ParseConfig("/vendor/etc/init")) {
+		    late_import_paths.emplace_back("/vendor/etc/init");
+		}
+		if (!parser.ParseConfig("/odm/etc/init")) {
+		    late_import_paths.emplace_back("/odm/etc/init");
+		}
+		if (!parser.ParseConfig("/product/etc/init")) {
+		    late_import_paths.emplace_back("/product/etc/init");
+		}
+	    } else {
+		parser.ParseConfig(bootscript);
+	    }
+	}
 }
 
 void PropertyChanged(const std::string& name, const std::string& value) {
@@ -338,7 +349,9 @@ void PropertyChanged(const std::string& name, const std::string& value) {
     // In non-thermal-shutdown case, 'shutdown' trigger will be fired to let device specific
     // commands to be executed.
     if (name == "sys.powerctl") {
-        trigger_shutdown(value);
+        if (access("/.cell", F_OK) != 0) {
+            trigger_shutdown(value);
+        }
     }
 
     if (property_triggers_enabled) {

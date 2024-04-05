@@ -41,6 +41,7 @@
 #define DEFAULT_BINDER_VM_SIZE ((1 * 1024 * 1024) - sysconf(_SC_PAGE_SIZE) * 2)
 #define DEFAULT_MAX_BINDER_THREADS 0
 #define DEFAULT_ENABLE_ONEWAY_SPAM_DETECTION 1
+#define INIT_SYSTEM_CONTEXT_MGR_HANDLE 100000000
 
 // -------------------------------------------------------------------------
 
@@ -115,6 +116,15 @@ void ProcessState::startThreadPool()
 sp<IBinder> ProcessState::getContextObject(const sp<IBinder>& /*caller*/)
 {
     return getStrongProxyForHandle(0);
+}
+
+sp<IBinder> ProcessState::getMgrContextObject(int index)
+{
+    sp<IBinder> result;
+    if(index < 0 || index >= CELLS_MAX_CONTEXT)
+        return result;
+
+    return getStrongProxyForHandle(INIT_SYSTEM_CONTEXT_MGR_HANDLE + index);
 }
 
 void ProcessState::becomeContextManager()
@@ -205,6 +215,10 @@ void ProcessState::setCallRestriction(CallRestriction restriction) {
 
 ProcessState::handle_entry* ProcessState::lookupHandleLocked(int32_t handle)
 {
+    if(handle >= INIT_SYSTEM_CONTEXT_MGR_HANDLE){
+        return &mSystemContextMgrHandle[handle - INIT_SYSTEM_CONTEXT_MGR_HANDLE];
+    }
+
     const size_t N=mHandleToObject.size();
     if (N <= (size_t)handle) {
         handle_entry e;
@@ -415,6 +429,12 @@ ProcessState::ProcessState(size_t mmapSize)
             close(mDriverFD);
             mDriverFD = -1;
         }
+    }
+
+    for(int i=0; i < CELLS_MAX_CONTEXT; i++)
+    {
+        mSystemContextMgrHandle[i].binder = nullptr;
+        mSystemContextMgrHandle[i].refs = nullptr;
     }
 
 #ifdef __ANDROID__

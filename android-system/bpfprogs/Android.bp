@@ -78,14 +78,3 @@ cc_test {
     licenses: ["Android-Apache-2.0"],
 }
 
-bpf {
-    name: "fuse_media.o",
-    srcs: ["fuse_media.c"],
-    cflags: [
-        "-Wall",
-        "-Werror",
-    ],
-    include_dirs: [
-        "external/libfuse/include",
-    ],
-}

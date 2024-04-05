@@ -1,0 +1,113 @@
+
+module cells 1.0;
+
+require {
+	type ueventd;
+	type hal_graphics_composer_default;
+	type sysfs_bluetooth_writable;
+	type metadata_file;
+	type vendor_init;
+	type debugfs;
+	type vendor_cec_prop;
+	type sysfs_dmc;
+	type default_prop;
+	type sysfs_hdmi;
+	type toolbox;
+	type system_file;
+	type proc_keys;
+	type hal_camera_default;
+	type init;
+	type system_data_file;
+	type vendor_default_prop;
+	type sysfs;
+	type vold;
+	type proc_pid_max;
+	type property_socket;
+	type bootanim;
+	type hal_graphics_allocator_default;
+	type surfaceflinger;
+	type hal_tv_cec_default;
+	type hal_bluetooth_default;
+	type tmpfs;
+	type xbmc_copy_folder;
+	type prng_seeder;
+	type init_tmpfs;
+	type vendor_system_public_prop;
+	type bluetooth_data_file;
+	type proc;
+	type preinstall;
+	class property_service set;
+	class lnk_file read;
+	class file { create getattr map open read setattr };
+	class dir { ioctl open read search setattr };
+	class sock_file write;
+	class unix_stream_socket connectto;
+	class netlink_route_socket nlmsg_readpriv;
+	class netlink_kobject_uevent_socket { bind create getopt read setopt };
+	class key view;
+	class fifo_file getattr;
+	class udp_socket ioctl;
+	class capability sys_ptrace;
+}
+
+#============= bootanim ==============
+allow bootanim metadata_file:dir search;
+
+#============= hal_bluetooth_default ==============
+allow hal_bluetooth_default bluetooth_data_file:dir search;
+
+#============= hal_camera_default ==============
+allow hal_camera_default default_prop:file { getattr map open read };
+
+#============= hal_graphics_allocator_default ==============
+allow hal_graphics_allocator_default vendor_default_prop:property_service set;
+
+#============= hal_graphics_composer_default ==============
+allow hal_graphics_composer_default default_prop:file { getattr map open read };
+allow hal_graphics_composer_default system_file:file { getattr open read };
+
+#============= hal_tv_cec_default ==============
+allow hal_tv_cec_default init:unix_stream_socket connectto;
+allow hal_tv_cec_default property_socket:sock_file write;
+allow hal_tv_cec_default vendor_cec_prop:property_service set;
+
+#============= init ==============
+allow init debugfs:file setattr;
+allow init proc:file setattr;
+allow init proc_keys:file { getattr open read };
+allow init self:netlink_kobject_uevent_socket { bind create getopt read setopt };
+allow init self:netlink_route_socket nlmsg_readpriv;
+allow init sysfs:file setattr;
+allow init sysfs_bluetooth_writable:lnk_file read;
+allow init sysfs_dmc:file setattr;
+allow init sysfs_hdmi:file setattr;
+allow init vold:key view;
+
+#============= preinstall ==============
+allow preinstall system_data_file:file { create open read };
+
+#============= surfaceflinger ==============
+allow surfaceflinger tmpfs:lnk_file read;
+allow surfaceflinger vendor_system_public_prop:property_service set;
+
+#============= toolbox ==============
+allow toolbox init:fifo_file getattr;
+allow toolbox init:file read;
+allow toolbox prng_seeder:file read;
+allow toolbox proc_pid_max:file { open read };
+allow toolbox self:capability sys_ptrace;
+
+#!!!! This avc is allowed in the current policy
+#!!!! This av rule may have been overridden by an extended permission av rule
+allow toolbox self:udp_socket ioctl;
+allow toolbox ueventd:file read;
+allow toolbox vendor_init:file read;
+
+#============= vendor_init ==============
+allow vendor_init system_data_file:dir { ioctl open read setattr };
+
+#============= vold ==============
+allow vold init_tmpfs:file { getattr open read };
+
+#============= xbmc_copy_folder ==============
+allow xbmc_copy_folder system_data_file:file { create open read };
