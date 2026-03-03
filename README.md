@@ -29,7 +29,7 @@ Video: https://github.com/jianglin-code/AutoVP/blob/main/autovp.mp4
 
 Paper: https://www.usenix.org/system/files/nsdi24-jiang-lin.pdf
 
-patent: https://static.tianyancha.com/patent/contentPDF/5ef8c5c1a47c54fa4fccb6278e682313.pdf
+Patent: https://static.tianyancha.com/patent/contentPDF/5ef8c5c1a47c54fa4fccb6278e682313.pdf
 
 ## Code Introduction  (Android 13, Rockchip rk3528 SOC, Demo)
 
