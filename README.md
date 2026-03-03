@@ -26,6 +26,7 @@ In a nutshell, we make the following key contributions:
 The figure provides an overview of AutoVP’s architecture. AutoVP supports multiple Android containers. For example, both driver and co-driver can have their own in-vehicle infotainment systems running on isolated Android containers.
 
 Video: https://github.com/jianglin-code/AutoVP/blob/main/autovp.mp4
+Paper: https://www.usenix.org/system/files/nsdi24-jiang-lin.pdf
 
 ## Code Introduction  (Android 13, Rockchip rk3528 SOC, Demo)
 
